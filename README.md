@@ -1,4 +1,4 @@
-# wfu (Webview for Unity)
+# wfu (Webview IDE for Unity)
 A WebView-based IDE for building embedded mini-apps within Unity
 
 
