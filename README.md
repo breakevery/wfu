@@ -1,235 +1,311 @@
-# wfu (Webview IDE for Unity)
-A WebView-based IDE for building embedded mini-apps within Unity
+# WFU — WebView IDE for Unity
 
+> A lightweight, plugin-based IDE for building mini-apps that run inside Unity applications via WebView.
 
-# WebView-IDE for Unity Mini-Apps
-
-> An integrated development environment (IDE) built with WPF + WebView2 for creating and previewing mini-apps that run inside Unity applications.
-
+[![GitHub](https://img.shields.io/badge/GitHub-breakevery%2Fwfu-181717?logo=github)](https://github.com/breakevery/wfu)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)]()
+[![Status](https://img.shields.io/badge/status-development-yellow)]()
 
 ---
 
-## 📖 Table of Contents / 目录
+## 📖 Table of Contents
 
-- [Introduction / 介绍](#-introduction--介绍)
-- [Features / 特性](#-features--特性)
-- [Architecture / 架构](#-architecture--架构)
-- [Quick Start / 快速开始](#-quick-start--快速开始)
-- [Project Structure / 项目结构](#-project-structure--项目结构)
-- [Plugin Development / 插件开发](#-plugin-development--插件开发)
-- [Contributing / 贡献指南](#-contributing--贡献指南)
-- [License & Commercial Authorization / 许可证与商业授权](#-license--commercial-authorization--许可证与商业授权)
-
----
-
-## 📌 Introduction / 介绍
-
-**English** | This project aims to build a lightweight IDE that allows developers to create mini-apps running inside a Unity application via WebView. The IDE features real-time code editing, live preview, a plugin extension system, and shared database access — with the final output being loadable directly into a Unity host.
-
-**中文** | 本项目旨在构建一个轻量级 IDE，让开发者能够创建运行在 Unity 应用程序内部的"小程序"（基于 WebView）。IDE 提供实时代码编辑、即时预览、插件扩展系统和数据库共享能力——最终产物可直接加载到 Unity 宿主程序中。
+- [Introduction](#-introduction)
+- [Philosophy](#-philosophy)
+- [Features](#-features)
+- [Architecture](#-architecture)
+- [Roadmap](#-roadmap-2026--2027)
+- [Quick Start](#-quick-start)
+- [Project Structure](#-project-structure)
+- [Plugin Development](#-plugin-development)
+- [Contributing](#-contributing)
+- [License & Commercial Authorization](#-license--commercial-authorization)
 
 ---
 
-## ✨ Features / 特性
+## 📌 Introduction
 
-| English | 中文 |
-|---------|------|
-| 🖥️ **WPF + WebView2** — Modern UI with embedded Chromium engine | 🖥️ **WPF + WebView2** — 现代化界面，内嵌 Chromium 引擎 |
-| ✏️ **Code Editor** — Syntax highlighting, line numbers, auto-completion (AvalonEdit) | ✏️ **代码编辑器** — 语法高亮、行号显示、自动补全（AvalonEdit） |
-| 🔄 **Live Preview** — Real-time preview of mini-apps within the IDE | 🔄 **即时预览** — 在 IDE 内实时预览小程序效果 |
-| 🗄️ **Shared Database** — SQLite support, accessible from both C# and JavaScript | 🗄️ **数据库共享** — SQLite 支持，C# 和 JavaScript 均可访问 |
-| 🔌 **Plugin System** — Extensible via DLL plugins (IPlugin interface) | 🔌 **插件系统** — 通过 DLL 插件扩展（IPlugin 接口） |
-| 📦 **One-Click Export** — Package mini-apps as .zip for Unity deployment | 📦 **一键导出** — 将小程序打包为 .zip 供 Unity 加载 |
-| 🌐 **C# ↔ JS Bridge** — Bidirectional communication between .NET and WebView | 🌐 **C# ↔ JS 桥接** — .NET 与 WebView 双向通信 |
+**English** | WFU (WebView For Unity) is a minimalist IDE that lets developers create HTML/CSS/JavaScript mini-apps and run them inside Unity applications through WebView.
+
+It is **not** a full-featured IDE like VS Code. Instead, it provides a **tiny native core** (~200 lines) with file editing, local preview, debugging, and settings — everything else is a plugin.
+
+**中文** | WFU（WebView For Unity）是一个极简 IDE，让开发者能够创建 HTML/CSS/JavaScript 小程序，并通过 WebView 运行在 Unity 应用程序内部。
+
+它**不是**一个像 VS Code 那样的全功能 IDE。相反，它提供了一个**极小的原生核心**（约 200 行），只包含文件编辑、本地预览、调试和设置功能——其他一切皆为插件。
 
 ---
 
-## 🏗️ Architecture / 架构
+## 🧠 Philosophy
+
+> **"Core is law, plugins are choice."**
+
+| Principle | Meaning |
+|-----------|---------|
+| **Microkernel** | Native core does only 4 things: read/write, edit, debug, settings. |
+| **Plugin Everything** | Language packs, themes, toolbars, formatters — all are plugins. |
+| **Interface First** | Plugins must implement `IPlugin` or its derivatives to be loaded. |
+| **Zero Hardcoded Text** | The core contains **no** display strings — all text comes from `ILanguagePack`. |
+
+---
+
+## ✨ Features
+
+| Module | Description |
+|--------|-------------|
+| 🖥️ **Editor Host** | WPF + AvalonEdit with syntax highlighting, line numbers |
+| 📂 **File Service** | Read/write `.html`, `.js`, `.css` files (no parsing) |
+| 🐛 **Debug Pipe** | WebSocket log output via `localhost` |
+| ⚙️ **Settings Store** | Persistent `settings.json` (font, theme, recent projects) |
+| 🔌 **Plugin Loader** | Scan `Plugins/` folder and load `.dll` via `Assembly.Load` |
+| 🔗 **C# ↔ JS Bridge** | Expose native methods to WebView2 JavaScript |
+| 📦 **One-Click Export** | Package current project as `.zip` for Unity deployment |
+
+---
+
+## 🏗️ Architecture
 
 ```
 
-┌─────────────────────────────────────────────────────────────┐
-│                    WebView-IDE (WPF)                        │
-│  ┌─────────────┐  ┌─────────────┐  ┌───────────────────┐  │
-│  │  AvalonEdit  │  │  File Tree  │  │  WebView2 Preview │  │
-│  │  (Editor)    │  │  (Project)  │  │  (Live Preview)   │  │
-│  └──────┬──────┘  └──────┬──────┘  └─────────┬─────────┘  │
-│         │                │                     │            │
-│         └────────────────┼─────────────────────┘            │
-│                          │                                  │
-│  ┌───────────────────────▼───────────────────────────────┐  │
-│  │              ASP.NET Core Embedded HTTP Server         │  │
-│  │                   (localhost:5000)                     │  │
-│  └───────────────────────┬───────────────────────────────┘  │
-│                          │                                  │
-│  ┌───────────────────────▼───────────────────────────────┐  │
-│  │              SQLite Database (Shared Access)           │  │
-│  └───────────────────────┬───────────────────────────────┘  │
-│                          │                                  │
-│  ┌───────────────────────▼───────────────────────────────┐  │
-│  │              Plugin Loader (Assembly.Load)             │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                        WFU Native Core                         │
+│  ┌──────────────┐ ┌──────────────┐ ┌────────────────────────┐ │
+│  │ FileService  │ │ EditorHost   │ │ DebugPipe (WebSocket)  │ │
+│  └──────────────┘ └──────────────┘ └────────────────────────┘ │
+│  ┌──────────────┐ ┌──────────────────────────────────────────┐ │
+│  │ SettingsStore│ │ PluginLoader (Assembly.Load + Reflection)│ │
+│  └──────────────┘ └──────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
 │
 ▼
-┌─────────────────────────────────────────────────────────────┐
-│              Unity Host Application                         │
-│         (Loads exported .zip mini-apps via WebView)         │
-└─────────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────────────┐
+│                    Plugin Layer (DLLs)                         │
+│  ┌────────────┐ ┌────────────┐ ┌────────────┐ ┌────────────┐ │
+│  │EnglishPack │ │BasicTheme  │ │FileTree    │ │StatusBar   │ │
+│  └────────────┘ └────────────┘ └────────────┘ └────────────┘ │
+│  ┌────────────┐ ┌────────────┐ ┌────────────────────────────┐ │
+│  │HotkeyPlugin│ │Toolbar     │ │ (Your custom plugin here)  │ │
+│  └────────────┘ └────────────┘ └────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+│
+▼
+┌─────────────────────────────────────────────────────────────────┐
+│                    Unity Host Application                      │
+│              (Loads exported .zip via WebView)                  │
+└─────────────────────────────────────────────────────────────────┘
 
 ```
 
 ---
 
-## 🚀 Quick Start / 快速开始
+## 🗺️ Roadmap (2026 – 2027)
 
-### Prerequisites / 环境要求
+### ✅ Completed
+
+- [x] GitHub organization `breakevery` created
+- [x] Repository initialized with Apache 2.0 license
+- [x] Project architecture finalized (microkernel + plugins)
+
+### 🔨 In Progress (Sep – Dec 2026)
+
+| Milestone | Target | Deliverable |
+|-----------|--------|-------------|
+| **M1: Bare Core** | Sep 2026 | Editor can open/save files, English menu shows |
+| **M2: Plugin Loader** | Oct 2026 | Scan `Plugins/` and load `.dll` with `IPlugin` |
+| **M3: Debug Pipe** | Oct 2026 | WebSocket logs to debug panel |
+| **M4: Official Plugins** | Nov 2026 | FileTree, StatusBar, Hotkey, Theme, Toolbar |
+| **M5: Export** | Nov 2026 | One-click `.zip` packaging |
+| **M6: Beta Release** | Dec 2026 | Single `.exe` published on Gitee |
+
+### 📅 Future Plans (2027+)
+
+- [ ] Linux support (WebKitGTK)
+- [ ] Plugin Marketplace
+- [ ] Chinese / Japanese language packs
+- [ ] Code formatter plugin (Prettier)
+- [ ] Git integration plugin
+- [ ] Gitee mirror repository
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
 
 - Windows 10/11
 - [.NET 8 SDK](https://dotnet.microsoft.com/download)
-- [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/) (Windows 10/11 通常已内置)
+- [WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)
 
-### Build & Run / 构建与运行
+### Build from Source
 
 ```bash
-# Clone the repository / 克隆仓库
-git clone https://github.com/[your-username]/[repo-name].git
-cd [repo-name]
-
-# Restore dependencies / 恢复依赖
+git clone https://github.com/breakevery/wfu.git
+cd wfu
 dotnet restore
-
-# Build the project / 构建项目
 dotnet build -c Release
-
-# Run the IDE / 运行 IDE
-dotnet run --project src/IDE.Editor
+dotnet run --project src/WFU.Core
 ```
 
-Create Your First Mini-App / 创建你的第一个小程序
+Run Pre-built Binary
 
-1. Open the IDE and create a new project / 打开 IDE，新建项目
-2. Write HTML/CSS/JavaScript code in the editor / 在编辑器中编写 HTML/CSS/JavaScript
-3. Click Preview to see the result in WebView2 / 点击 预览 在 WebView2 中查看效果
-4. Click Export to generate a .zip package / 点击 导出 生成 .zip 包
-5. Load the .zip in your Unity app via WebView / 在 Unity 应用中通过 WebView 加载该 .zip
+Download WFU.exe from Releases and run.
 
 ---
 
-📁 Project Structure / 项目结构
+📁 Project Structure
 
 ```
-WebView-IDE/
+WFU/
 ├── src/
-│   ├── IDE.Core/                 # Core interfaces & shared models / 核心接口与共享模型
-│   │   ├── Plugin/               # IPlugin interface / 插件接口定义
-│   │   └── Models/               # Data models / 数据模型
-│   ├── IDE.Editor/               # WPF UI / 主界面
-│   │   ├── Views/                # MainWindow, dialogs / 主窗口、对话框
-│   │   ├── ViewModels/           # MVVM ViewModels
-│   │   └── Services/             # Editor services / 编辑器服务
-│   ├── IDE.Bridge/               # C# ↔ JS communication / C# 与 JS 通信桥接
-│   │   ├── HttpServer/           # ASP.NET Core embedded server
-│   │   └── WebViewBridge/        # AddHostObjectToScript wrapper
-│   └── IDE.PluginSDK/            # SDK for plugin developers / 插件开发 SDK
-├── samples/                      # Example mini-apps / 示例小程序
-├── docs/                         # Documentation / 文档
-├── tests/                        # Unit tests / 单元测试
-├── README.md                     # This file / 本文件
+│   ├── WFU.Core/                 # Native core (FileService, EditorHost, DebugPipe, SettingsStore)
+│   ├── WFU.PluginSDK/            # Plugin interfaces (IPlugin, ILanguagePack, IThemeProvider)
+│   └── WFU.Host/                 # WPF main window
+├── plugins/                      # Official plugins
+│   ├── EnglishPack/
+│   ├── BasicTheme/
+│   ├── FileTreePlugin/
+│   ├── StatusBarPlugin/
+│   ├── HotkeyPlugin/
+│   └── ToolbarPlugin/
+├── samples/                      # Example mini-apps
+├── docs/                         # Documentation
+├── tests/                        # Unit tests
+├── README.md                     # This file
 └── LICENSE                       # Apache License 2.0
 ```
 
 ---
 
-🔌 Plugin Development / 插件开发
+🔌 Plugin Development
 
-To create a plugin, implement the IPlugin interface:
+Implement the Base Interface
 
 ```csharp
-using IDE.Core.Plugin;
+using WFU.PluginSDK;
 
-[Plugin("MyPlugin", "1.0.0", "Plugin description")]
+[Plugin("MyPlugin", "1.0.0", "Does something useful")]
 public class MyPlugin : IPlugin
 {
-    public void Initialize() { /* Called when plugin is loaded */ }
-    public void Execute()    { /* Called when plugin is triggered */ }
-    public void Dispose()    { /* Called when plugin is unloaded */ }
+    public void Initialize() { /* Called on load */ }
+    public void Execute()    { /* Called on trigger */ }
+    public void Dispose()    { /* Called on unload */ }
 }
 ```
 
-Build your plugin as a .dll and drop it into the Plugins/ folder — the IDE will load it automatically via Assembly.Load reflection.
+Build & Deploy
+
+```bash
+dotnet build -c Release
+# Copy .dll to WFU_HOME/Plugins/
+```
+
+Language Pack Plugin
+
+```csharp
+public class EnglishPack : ILanguagePack
+{
+    public string GetString(string key) => key switch
+    {
+        "menu_file" => "File",
+        "menu_edit" => "Edit",
+        "menu_view" => "View",
+        "menu_help" => "Help",
+        _ => key
+    };
+}
+```
+
+Theme Plugin
+
+```csharp
+public class DarkTheme : IThemeProvider
+{
+    public string BackgroundColor => "#1E1E1E";
+    public string ForegroundColor => "#D4D4D4";
+    public string FontFamily => "Consolas";
+    public double FontSize => 14.0;
+}
+```
 
 ---
 
 🤝 Contributing / 贡献指南
 
-Contributions are welcome! Please read CONTRIBUTING.md for details on our code of conduct and the process for submitting pull requests.
+English | Contributions are welcome! Please follow these steps:
 
-欢迎贡献！请阅读 CONTRIBUTING.md 了解行为准则和提交 Pull Request 的流程。
+1. Fork the repository: https://github.com/breakevery/wfu
+2. Create a feature branch (git checkout -b feature/amazing)
+3. Commit your changes (git commit -m 'Add amazing feature')
+4. Push to the branch (git push origin feature/amazing)
+5. Open a Pull Request
+
+We especially welcome:
+
+· New language packs
+· New themes
+· Tool/utility plugins
+· Bug fixes
+· Documentation improvements
+
+---
+
+中文 | 欢迎贡献！请按以下步骤操作：
+
+1. Fork 本仓库：https://github.com/breakevery/wfu
+2. 创建功能分支（git checkout -b feature/amazing）
+3. 提交更改（git commit -m 'Add amazing feature'）
+4. 推送到分支（git push origin feature/amazing）
+5. 提交 Pull Request
+
+我们特别欢迎：
+
+· 新语言包
+· 新主题
+· 工具/实用插件
+· Bug 修复
+· 文档改进
+
+---
+
+📧 Contact / 联系方式
+
+GitHub: https://github.com/breakevery/wfu
+Organization: Breakevery
+
+Email (Primary / 主要): chenyindrager@outlook.com
+Email (Backup / 备用): 1404807068@qq.com
 
 ---
 
 📄 License & Commercial Authorization / 许可证与商业授权
 
-This project is released under a dual-licensing model to balance open-source freedom and commercial sustainability.
+This project uses a dual-licensing model.
 
-本项目采用 双许可模式，以平衡开源自由与商业可持续性。
+本项目采用 双许可模式。
 
 ---
 
-1. Open-Source License / 开源许可证
+1. Open-Source License — Apache 2.0
 
-The project is licensed under the Apache License, Version 2.0 – see the LICENSE file for details.
+Free for personal, educational, and open-source use.
+Full terms: LICENSE
 
-本项目默认采用 Apache 2.0 开源协议 —— 详见 LICENSE 文件。
-
-Under this license, you are free to:
-
-· Use the code for personal, educational, or internal business purposes
-· Modify and distribute the code
-· Use it in open-source projects (even commercial open-source)
-
-Requirements: You must retain the copyright notice, disclaimer, and state any modifications.
-
-在本协议下，你可以：
-
-· 将代码用于 个人、教育或内部商业用途
-· 修改和分发代码
-· 在开源项目（含商业开源）中使用
-
-要求： 必须保留版权声明、免责声明，并声明对源码的修改。
+个人、教育和开源使用免费。
+完整条款见 LICENSE 文件。
 
 ---
 
 2. Commercial License / 商业授权
 
-If your use case does not fully comply with Apache 2.0 requirements, or if you need to integrate this project into closed-source / proprietary software without disclosing source code, or if you require custom development, dedicated support, or indemnification, please contact us for a Commercial License.
+For closed-source integration, custom development, or enterprise support:
 
-如果你的使用场景无法完全遵守 Apache 2.0 的全部条款，或者需要将此项目集成到 闭源/专有软件 中且无需公开源码，或者需要 定制开发、专属技术支持或法律担保，请联系我们获取 商业授权。
+闭源集成、定制开发或企业支持，请联系：
 
-Commercial Licensing benefits include:
+📧 Email (Primary / 主要): chenyindrager@outlook.com
+📧 Email (Backup / 备用): 1404807068@qq.com
 
-· ✅ No obligation to open-source your derivative code
-· ✅ Priority technical support
-· ✅ Custom feature development (upon request)
-· ✅ Legal protection and indemnification clauses
-
-商业授权权益包括：
-
-· ✅ 无开源衍生代码的义务
-· ✅ 优先技术支持
-· ✅ 定制功能开发（按需）
-· ✅ 法律保护与免责条款
-
----
-
-📧 Contact for Commercial License / 商业授权联系方式
-
-Email: your-email@example.com
-Subject: [Commercial License] Your Company / Project Name
+Subject / 邮件主题: [Commercial License] Your Company / 您的公司
 
 Please include in your email:
 
@@ -237,41 +313,33 @@ Please include in your email:
 · Intended use case and deployment scale
 · Any specific customization requirements
 
-邮箱： your-email@example.com
-邮件主题： [商业授权] 您的公司/项目名称
-
 邮件中请附上：
 
 · 您的公司/组织名称
 · 预期用途与部署规模
 · 任何特定的定制需求
 
+Benefit / 权益 Included / 包含
+No open-source obligation / 无开源义务 ✅
+Priority support / 优先技术支持 ✅
+Custom development / 定制开发 ✅ (on request)
+Indemnification / 法律担保 ✅
+
 ---
 
-⚠️ Disclaimer: All contributors retain their respective copyrights. The dual-licensing model does not affect the open-source status of Apache 2.0; it merely provides an alternative commercial channel for users with specific needs.
+⚠️ Disclaimer: All contributors retain their respective copyrights. The dual-licensing model does not affect the open-source status of Apache 2.0.
 
-⚠️ 免责声明： 所有贡献者保留各自著作权。双许可模式不影响 Apache 2.0 的开源属性，仅为有特定需求的用户提供额外的商业授权通道。
+⚠️ 免责声明： 所有贡献者保留各自著作权。双许可模式不影响 Apache 2.0 的开源属性。
 
 ---
 
-🙏 Acknowledgments / 致谢
+🙏 Acknowledgments
 
 · AvalonEdit — WPF code editor control
 · WebView2 — Microsoft Edge WebView2
 · SQLite — Lightweight embedded database
 
-```
-
 ---
 
-### 📝 后续操作清单
-
-- [ ] 将 `[your-username]` 替换为你的 GitHub 用户名
-- [ ] 将 `[repo-name]` 替换为你的仓库名
-- [ ] 将 `your-email@example.com` 替换为你的真实联系邮箱
-- [ ] 在仓库根目录创建 `LICENSE` 文件（粘贴 [Apache 2.0 全文](https://www.apache.org/licenses/LICENSE-2.0)）
-- [ ] 可选择创建 `CONTRIBUTING.md`、`CODE_OF_CONDUCT.md`、`CHANGELOG.md`
-- [ ] 将以上 README.md 完整内容复制到你的仓库中
-
-祝你的开源项目顺利起步！如果还需要其他辅助文件（如 `CONTRIBUTING.md` 模板、`.gitignore` 模板等），随时告诉我。🎉
-```
+Built with ❤️ by the Breakevery team.
+For inquiries: chenyindrager@outlook.com
