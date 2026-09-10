@@ -20,6 +20,12 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M5-2 补全 EnglishPack 8 个缺失 key（2026-09-10）**
+  - 新增 Edit 子项 5 个 key（`menu_edit_undo/redo/cut/copy/paste`）。
+  - 新增 View 子项 2 个 key（`menu_view_toggle_left/right`）。
+  - 新增工具栏 1 个 key（`toolbar_bridge_test`）。
+  - `MainWindow.xaml` 为这 8 个控件添加 `x:Name`；`ApplyLanguage()` 补全动态赋值。
+  - 验证：编译 0 警告 0 错误；语言包生效（临时值验证）；降级不崩溃。
 - **M5-1 接口继承重构（2026-09-10）**
   - `IPlugin` 生命周期方法（`Initialize`/`Execute`/`Dispose`）改为**默认空实现**。
   - `ILanguagePack` / `IThemeProvider` 改为**继承 `IPlugin`**，插件类无需再重复实现生命周期方法。

@@ -180,6 +180,18 @@ public partial class MainWindow : Window
             ToolbarSave.Content = t.GetString("toolbar_save");
             ToolbarPreview.Content = t.GetString("toolbar_preview");
             ToolbarExport.Content = t.GetString("toolbar_export");
+            ToolbarBridgeTest.Content = t.GetString("toolbar_bridge_test");
+
+            // Edit 菜单项（M5 补全）
+            MenuEditUndo.Header = t.GetString("menu_edit_undo");
+            MenuEditRedo.Header = t.GetString("menu_edit_redo");
+            MenuEditCut.Header = t.GetString("menu_edit_cut");
+            MenuEditCopy.Header = t.GetString("menu_edit_copy");
+            MenuEditPaste.Header = t.GetString("menu_edit_paste");
+
+            // View 菜单项（M5 补全）
+            MenuViewToggleLeft.Header = t.GetString("menu_view_toggle_left");
+            MenuViewToggleRight.Header = t.GetString("menu_view_toggle_right");
 
             Console.WriteLine("[Lang] 已应用语言包文本");
         }

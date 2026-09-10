@@ -40,6 +40,17 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_preview_refreshed", "Preview refreshed" },
         { "status_line", "Ln" },
         { "status_col", "Col" },
+        // Edit 菜单项（M5 补全）
+        { "menu_edit_undo", "Undo" },
+        { "menu_edit_redo", "Redo" },
+        { "menu_edit_cut", "Cut" },
+        { "menu_edit_copy", "Copy" },
+        { "menu_edit_paste", "Paste" },
+        // View 菜单项（M5 补全）
+        { "menu_view_toggle_left", "Toggle Left Panel" },
+        { "menu_view_toggle_right", "Toggle Right Panel" },
+        // 工具栏（M5 补全）
+        { "toolbar_bridge_test", "Bridge Test" },
     };
 
     /// <inheritdoc />

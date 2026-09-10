@@ -148,7 +148,7 @@ public class EnglishLanguagePack : IPlugin, ILanguagePack
 
 | 插件 | 版本 | 能力 | 说明 |
 |------|------|------|------|
-| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏共 23 条 key |
+| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏共 **31** 条 key |
 | **BasicTheme** | 1.0.0 | `IThemeProvider` | 深色主题（背景 `#1E1E1E`、前景 `#D4D4D4`、Consolas 14） |
 
 两者均位于仓库根 `plugins/` 下，已加入解决方案但不参与主程序编译（各自输出到宿主 `Plugins/` 子目录）。
@@ -173,14 +173,15 @@ public class EnglishLanguagePack : IPlugin, ILanguagePack
 
 ## 6. 已知限制与技术债
 
-1. `EnglishPack` **缺失 8 个 key**：Edit 子菜单 5 个（Undo/Redo/Cut/Copy/Paste）、View 的 2 个 Toggle Panel、工具栏 `Bridge Test`。
-2. `IThemeProvider` 只有 **4 个属性**（BackgroundColor / ForegroundColor / FontFamily / FontSize）；
-   `DarkThemeProvider` 里额外定义了 `EditorBackground` / `EditorForeground`，但**不在接口中**，当前 S5 未使用。
-3. `ILanguagePack` / `IThemeProvider` **未继承 `IPlugin`**，目前靠插件**同时实现多个接口**来兼容加载器。
-4. **状态栏文本暂未接入语言包**（属动态文本，规划在 M5 处理）。
-5. 界面文本替换采用**方案 B（代码后置硬替换）**而非 XAML 绑定 Converter。
+> **M5 进展**：① 接口继承重构（`ILanguagePack` / `IThemeProvider` 继承 `IPlugin`，生命周期方法提供默认实现）——✅ M5-1 已完成；
+> ② 补全 EnglishPack 8 个缺失 key——✅ M5-2 已完成；③ 状态栏接入语言包——待做；④ 发布自动复制 Plugins——待做。
 
-> **M5 计划**：接口继承重构（`ILanguagePack : IPlugin` 等，需解冻 `WFU.PluginSDK`）+ 补全缺失 key + 状态栏接入语言包。
+1. **状态栏文本暂未接入语言包**（动态文本，规划在 M5 后续处理）。
+2. 界面文本替换采用**方案 B（代码后置硬替换）**而非 XAML 绑定 Converter。
+3. `IThemeProvider` 的 `EditorBackground` / `EditorForeground` 已进入接口（带默认实现），M5-1 已偿还该项技术债。
+4. 历史遗留的「接口未继承 `IPlugin`」问题已由 M5-1 解决（插件类不再需要重复实现生命周期方法）。
+
+> **M5 剩余计划**：状态栏接入语言包 + 发布时自动复制 `Plugins/`。
 
 ---
 
