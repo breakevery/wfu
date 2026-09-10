@@ -1,11 +1,14 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using WFU.Core;
 using WFU.Core.Services;
 using WFU.Host.ViewModels;
+using WFU.PluginSDK;
 
 namespace WFU.Host;
 
@@ -16,6 +19,12 @@ namespace WFU.Host;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
+
+    /// <summary>当前生效的语言包插件；未加载时为 <c>null</c>，界面需回退到硬编码文本。</summary>
+    public static ILanguagePack? CurrentLanguagePack { get; private set; }
+
+    /// <summary>当前生效的主题插件；未加载时为 <c>null</c>，界面需回退到默认样式。</summary>
+    public static IThemeProvider? CurrentTheme { get; private set; }
 
     /// <summary>初始化主窗口：装配视图模型并接线编辑器事件。</summary>
     public MainWindow()
@@ -35,9 +44,10 @@ public partial class MainWindow : Window
         // RunCoreModuleTests();
     }
 
-    /// <summary>窗口加载完成：初始化 WebView2 并加载桥接测试页。</summary>
+    /// <summary>窗口加载完成：初始化 WebView2、加载插件并应用主题。</summary>
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // 1) 初始化 WebView2 并加载桥接测试页
         try
         {
             await RightWebView.InitializeAsync();
@@ -50,6 +60,84 @@ public partial class MainWindow : Window
             _viewModel.StatusText = $"WebView2 初始化失败: {ex.Message}";
             Console.WriteLine($"[MainWindow] WebView2 初始化失败: {ex}");
             MessageBox.Show(ex.Message, "WebView2 初始化失败", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+
+        // 2) 加载插件（含降级保护）并应用主题
+        LoadPlugins();
+        ApplyTheme();
+    }
+
+    /// <summary>
+    /// 扫描 <c>Plugins/</c> 目录并加载所有插件。任何异常都会被捕获并降级，
+    /// 不会导致程序崩溃。
+    /// </summary>
+    private void LoadPlugins()
+    {
+        try
+        {
+            var pluginDir = Path.Combine(AppContext.BaseDirectory, "Plugins");
+            Console.WriteLine($"[PluginLoader] 扫描目录: {pluginDir}");
+
+            var loader = new PluginLoader();
+
+            // 注意：WFU.Core.PluginLoader 只扫描“单层目录”，而插件 DLL 按规范位于 Plugins\<插件名>\ 子目录下。
+            // 内核冻结（不修改 WFU.Core），因此这里在 Host 侧对根目录与各一层子目录分别扫描。
+            if (Directory.Exists(pluginDir))
+            {
+                loader.LoadPlugins(pluginDir);
+
+                foreach (var subDir in Directory.GetDirectories(pluginDir))
+                {
+                    if (Directory.GetFiles(subDir, "*.dll").Length > 0)
+                        loader.LoadPlugins(subDir);
+                }
+            }
+            else
+            {
+                Console.WriteLine($"[PluginLoader] 插件目录不存在: {pluginDir}");
+            }
+
+            CurrentLanguagePack = loader.Plugins.OfType<ILanguagePack>().FirstOrDefault();
+            CurrentTheme = loader.Plugins.OfType<IThemeProvider>().FirstOrDefault();
+
+            Console.WriteLine($"[PluginLoader] 已加载 {loader.Plugins.Count} 个插件");
+            Console.WriteLine($"[PluginLoader] 语言包: {CurrentLanguagePack?.GetType().Name ?? "未加载（降级到硬编码）"}");
+            Console.WriteLine($"[PluginLoader] 主题: {CurrentTheme?.GetType().Name ?? "未加载（降级到默认样式）"}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[PluginLoader] 加载异常，已降级: {ex.Message}");
+            Console.WriteLine($"[PluginLoader] 堆栈: {ex.StackTrace}");
+            // 不抛出，让程序继续以硬编码模式运行
+        }
+    }
+
+    /// <summary>应用主题插件提供的颜色与字体；未加载或失败时保持默认样式。</summary>
+    private void ApplyTheme()
+    {
+        if (CurrentTheme == null)
+        {
+            Console.WriteLine("[Theme] 无主题插件，使用默认样式");
+            return;
+        }
+
+        try
+        {
+            // 方案 A：编辑器背景复用 BackgroundColor（IThemeProvider 仅 4 个属性）
+            var bg = (Color)ColorConverter.ConvertFromString(CurrentTheme.BackgroundColor);
+            var fg = (Color)ColorConverter.ConvertFromString(CurrentTheme.ForegroundColor);
+
+            Background = new SolidColorBrush(bg);
+            Editor.Background = new SolidColorBrush(bg);
+            Editor.Foreground = new SolidColorBrush(fg);
+            Editor.FontFamily = new FontFamily(CurrentTheme.FontFamily);
+            Editor.FontSize = CurrentTheme.FontSize;
+
+            Console.WriteLine($"[Theme] 已应用: bg={CurrentTheme.BackgroundColor}, font={CurrentTheme.FontFamily} {CurrentTheme.FontSize}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Theme] 应用主题失败，保留默认样式: {ex.Message}");
         }
     }
 

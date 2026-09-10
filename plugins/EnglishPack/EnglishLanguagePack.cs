@@ -4,11 +4,21 @@ namespace EnglishPack;
 
 /// <summary>
 /// English language pack for WFU.
-/// Implements <see cref="ILanguagePack"/>, providing all user-facing strings.
+/// 实现 <see cref="IPlugin"/>（供 PluginLoader 识别）+ <see cref="ILanguagePack"/>（能力接口）。
+/// 生命周期方法留空——语言包无需初始化/执行/清理逻辑。
 /// </summary>
 [Plugin("EnglishPack", "1.0.0", "English language pack")]
-public class EnglishLanguagePack : ILanguagePack
+public class EnglishLanguagePack : IPlugin, ILanguagePack
 {
+    /// <inheritdoc />
+    public void Initialize() { /* 语言包无需初始化 */ }
+
+    /// <inheritdoc />
+    public void Execute() { /* 语言包无需执行逻辑 */ }
+
+    /// <inheritdoc />
+    public void Dispose() { /* 语言包无需清理资源 */ }
+
     private static readonly Dictionary<string, string> Strings = new()
     {
         // 菜单标题

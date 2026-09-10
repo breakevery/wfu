@@ -4,11 +4,21 @@ namespace BasicTheme;
 
 /// <summary>
 /// Dark theme provider for WFU.
-/// Implements <see cref="IThemeProvider"/> with a VSCode-inspired dark palette.
+/// 实现 <see cref="IPlugin"/>（供 PluginLoader 识别）+ <see cref="IThemeProvider"/>（能力接口）。
+/// 生命周期方法留空——主题无需初始化/执行/清理逻辑。
 /// </summary>
 [Plugin("BasicTheme", "1.0.0", "Dark theme for WFU")]
-public class DarkThemeProvider : IThemeProvider
+public class DarkThemeProvider : IPlugin, IThemeProvider
 {
+    /// <inheritdoc />
+    public void Initialize() { /* 主题无需初始化 */ }
+
+    /// <inheritdoc />
+    public void Execute() { /* 主题无需执行逻辑 */ }
+
+    /// <inheritdoc />
+    public void Dispose() { /* 主题无需清理资源 */ }
+
     /// <inheritdoc />
     public string BackgroundColor => "#1E1E1E";
 
