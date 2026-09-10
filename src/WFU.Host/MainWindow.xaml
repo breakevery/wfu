@@ -17,14 +17,14 @@
 
         <!-- Row 0: 菜单栏 -->
         <Menu Grid.Row="0">
-            <MenuItem Header="File">
-                <MenuItem Header="New" Command="{Binding NewFileCommand}"/>
-                <MenuItem Header="Open" Command="{Binding OpenFileCommand}"/>
-                <MenuItem Header="Save" Command="{Binding SaveFileCommand}"/>
+            <MenuItem x:Name="MenuFile" Header="File">
+                <MenuItem x:Name="MenuFileNew" Header="New" Command="{Binding NewFileCommand}"/>
+                <MenuItem x:Name="MenuFileOpen" Header="Open" Command="{Binding OpenFileCommand}"/>
+                <MenuItem x:Name="MenuFileSave" Header="Save" Command="{Binding SaveFileCommand}"/>
                 <Separator/>
-                <MenuItem Header="Exit" Command="{Binding ExitAppCommand}"/>
+                <MenuItem x:Name="MenuFileExit" Header="Exit" Command="{Binding ExitAppCommand}"/>
             </MenuItem>
-            <MenuItem Header="Edit">
+            <MenuItem x:Name="MenuEdit" Header="Edit">
                 <MenuItem Header="Undo" Command="{Binding UndoCommand}"/>
                 <MenuItem Header="Redo" Command="{Binding RedoCommand}"/>
                 <Separator/>
@@ -32,25 +32,25 @@
                 <MenuItem Header="Copy" Command="{Binding CopyCommand}"/>
                 <MenuItem Header="Paste" Command="{Binding PasteCommand}"/>
             </MenuItem>
-            <MenuItem Header="View">
+            <MenuItem x:Name="MenuView" Header="View">
                 <MenuItem Header="Toggle Left Panel" Command="{Binding ToggleLeftPanelCommand}"/>
                 <MenuItem Header="Toggle Right Panel" Command="{Binding ToggleRightPanelCommand}"/>
                 <Separator/>
-                <MenuItem Header="Test C# → JS" Click="TestCSharpToJs_Click"/>
+                <MenuItem x:Name="MenuViewTestBridge" Header="Test C# → JS" Click="TestCSharpToJs_Click"/>
             </MenuItem>
-            <MenuItem Header="Help">
-                <MenuItem Header="About" Command="{Binding AboutCommand}"/>
+            <MenuItem x:Name="MenuHelp" Header="Help">
+                <MenuItem x:Name="MenuHelpAbout" Header="About" Command="{Binding AboutCommand}"/>
             </MenuItem>
         </Menu>
 
         <!-- Row 1: 工具栏 -->
         <ToolBar Grid.Row="1">
-            <Button Content="New" Command="{Binding NewFileCommand}"/>
-            <Button Content="Open" Command="{Binding OpenFileCommand}"/>
-            <Button Content="Save" Command="{Binding SaveFileCommand}"/>
+            <Button x:Name="ToolbarNew" Content="New" Command="{Binding NewFileCommand}"/>
+            <Button x:Name="ToolbarOpen" Content="Open" Command="{Binding OpenFileCommand}"/>
+            <Button x:Name="ToolbarSave" Content="Save" Command="{Binding SaveFileCommand}"/>
             <Separator/>
-            <Button Content="Preview" Click="Preview_Click"/>
-            <Button Content="Export"/>
+            <Button x:Name="ToolbarPreview" Content="Preview" Click="Preview_Click"/>
+            <Button x:Name="ToolbarExport" Content="Export"/>
             <Separator/>
             <Button Content="Bridge Test" Click="BridgeTest_Click"/>
         </ToolBar>

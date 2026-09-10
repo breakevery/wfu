@@ -62,9 +62,10 @@ public partial class MainWindow : Window
             MessageBox.Show(ex.Message, "WebView2 初始化失败", MessageBoxButton.OK, MessageBoxImage.Error);
         }
 
-        // 2) 加载插件（含降级保护）并应用主题
+        // 2) 加载插件（含降级保护）、应用主题与语言包
         LoadPlugins();
         ApplyTheme();
+        ApplyLanguage();
     }
 
     /// <summary>
@@ -138,6 +139,49 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Console.WriteLine($"[Theme] 应用主题失败，保留默认样式: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 应用语言包文本到菜单与工具栏（方案 B：代码后置硬替换）。
+    /// 无语言包时保持原有硬编码文本（优雅降级）。
+    /// </summary>
+    private void ApplyLanguage()
+    {
+        if (CurrentLanguagePack == null)
+        {
+            Console.WriteLine("[Lang] 无语言包，保持原硬编码文本");
+            return;
+        }
+
+        try
+        {
+            var t = CurrentLanguagePack;
+
+            // 菜单栏
+            MenuFile.Header = t.GetString("menu_file");
+            MenuFileNew.Header = t.GetString("menu_file_new");
+            MenuFileOpen.Header = t.GetString("menu_file_open");
+            MenuFileSave.Header = t.GetString("menu_file_save");
+            MenuFileExit.Header = t.GetString("menu_file_exit");
+            MenuEdit.Header = t.GetString("menu_edit");
+            MenuView.Header = t.GetString("menu_view");
+            MenuViewTestBridge.Header = t.GetString("menu_view_test_bridge");
+            MenuHelp.Header = t.GetString("menu_help");
+            MenuHelpAbout.Header = t.GetString("menu_help_about");
+
+            // 工具栏
+            ToolbarNew.Content = t.GetString("toolbar_new");
+            ToolbarOpen.Content = t.GetString("toolbar_open");
+            ToolbarSave.Content = t.GetString("toolbar_save");
+            ToolbarPreview.Content = t.GetString("toolbar_preview");
+            ToolbarExport.Content = t.GetString("toolbar_export");
+
+            Console.WriteLine("[Lang] 已应用语言包文本");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Lang] 应用失败，保留原硬编码: {ex.Message}");
         }
     }
 
