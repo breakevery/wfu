@@ -4,21 +4,47 @@ using System.IO;
 using System.Windows;
 using WFU.Core;
 using WFU.Core.Services;
+using WFU.Host.ViewModels;
 
 namespace WFU.Host;
 
 /// <summary>
-/// Interaction logic for MainWindow.xaml
+/// Interaction logic for MainWindow.xaml。
+/// 本文件只做界面事件转发，业务逻辑位于 <see cref="MainViewModel"/>。
 /// </summary>
 public partial class MainWindow : Window
 {
+    private readonly MainViewModel _viewModel;
+
     public MainWindow()
     {
         InitializeComponent();
 
+        _viewModel = new MainViewModel(
+            new FileService(),
+            new SettingsStore(Path.Combine(AppContext.BaseDirectory, "settings.json")));
+        DataContext = _viewModel;
+
+        // 光标位置变化 -> 转发给视图模型更新行列号
+        Editor.TextArea.Caret.PositionChanged += OnCaretPositionChanged;
+
         // ==== 临时验证：M1 核心模块回归测试 ====
-        // 验证通过后已注释，保留在文件里方便下次回归测试（取消下面一行注释即可重新运行）。
+        // 默认不调用；需要回归时取消下面一行的注释。
         // RunCoreModuleTests();
+    }
+
+    /// <summary>编辑器文本变化的事件转发（XAML 中注册）。</summary>
+    private void Editor_TextChanged(object sender, EventArgs e)
+    {
+        _viewModel.NotifyEditorTextChanged();
+    }
+
+    /// <summary>光标位置变化的事件转发。</summary>
+    private void OnCaretPositionChanged(object? sender, EventArgs e)
+    {
+        _viewModel.NotifyCaretPositionChanged(
+            Editor.TextArea.Caret.Line,
+            Editor.TextArea.Caret.Column);
     }
 
     /// <summary>

@@ -6,6 +6,14 @@
 ## [Unreleased]
 
 ### Added
+- **WFU.Host：实现 M2 主窗口 UI（2026-09-10）**
+  - `ViewModels/MainViewModel.cs`：MVVM 视图模型（6 个 `[ObservableProperty]` + New/Open/Save/Exit 命令 + Edit/View/About 占位命令）。
+  - `MainWindow.xaml`：5 行 Grid 布局（菜单/工具栏/三栏内容/分隔条/状态栏），集成 AvalonEdit（行号、Consolas 14）。
+  - `Behaviors/EditorTextBinding.cs`：AvalonEdit 文本双向绑定附加属性桥接（其 `Text` 非依赖属性，无法直接绑定）。
+  - `App.xaml.cs`：全局异常捕获（`AppDomain.UnhandledException` + `DispatcherUnhandledException`，后者置 `Handled=true` 防闪退）。
+  - `WFU.Host.csproj`：新增 CommunityToolkit.Mvvm 8.2.0 / AvalonEdit 6.3.0.90 / Microsoft.Web.WebView2 包。
+  - 新增 `docs/UI.md`：详细记载布局、MVVM 绑定、AvalonEdit 集成、异常捕获与已知技术债。
+  - 验证：`dotnet build` 0 警告 0 错误；`dotnet run` 界面正常弹出，Open 测试（打开 .html → 内容入编辑器）通过。
 - **WFU.Core：实现 M1 核心模块（2026-09-10）**
   - `Services/IFileService.cs` / `Services/FileService.cs`：异步文件读写，写入时自动创建目录，读取不存在文件抛 `FileNotFoundException`。
   - `Services/ISettingsStore.cs` / `Services/SettingsStore.cs`：基于 `System.Text.Json` 的 `settings.json` 持久化，内部使用 `Dictionary<string, object>`。
