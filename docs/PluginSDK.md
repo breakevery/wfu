@@ -39,6 +39,8 @@ WFU 采用「微内核 + 插件」架构：核心（`WFU.Core`）只负责读写
 | `void Execute()` | 用户触发插件时调用，用于完成插件的主要工作。 |
 | `void Dispose()` | 插件被卸载或宿主退出时调用，用于释放资源。 |
 
+> **M5 变更**：三个生命周期方法均已提供**默认空实现**，实现 `IPlugin`（或其派生接口）的类无需重复编写。
+
 ### 生命周期顺序
 
 ```
@@ -100,6 +102,8 @@ public PluginAttribute(string name, string version, string description = "")
 
 语言包契约，用于落实「零硬编码文本」原则：界面上的所有文字都必须来自语言包。
 
+> **M5 变更**：`ILanguagePack : IPlugin`（生命周期方法使用默认实现），实现者只需提供 `GetString`。
+
 ### 成员
 
 ```csharp
@@ -144,6 +148,9 @@ public class EnglishPack : ILanguagePack
 
 主题契约，向核心提供编辑器与界面的配色和字体。
 
+> **M5 变更**：`IThemeProvider : IPlugin`（生命周期方法使用默认实现）；新增 `EditorBackground` /
+> `EditorForeground` 两个**带默认实现**的属性（默认复用 `BackgroundColor` / `ForegroundColor`）。
+
 ### 成员
 
 | 成员 | 类型 | 说明 |
@@ -152,6 +159,8 @@ public class EnglishPack : ILanguagePack
 | `ForegroundColor` | `string` | 前景（文字）色，十六进制，如 `"#D4D4D4"`。 |
 | `FontFamily` | `string` | 字体名称，如 `"Consolas"`。 |
 | `FontSize` | `double` | 字号（磅）。 |
+| `EditorBackground` | `string` | 编辑器背景色（默认复用 `BackgroundColor`）。 |
+| `EditorForeground` | `string` | 编辑器前景色（默认复用 `ForegroundColor`）。 |
 
 ### 示例
 

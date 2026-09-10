@@ -20,6 +20,12 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M5-1 接口继承重构（2026-09-10）**
+  - `IPlugin` 生命周期方法（`Initialize`/`Execute`/`Dispose`）改为**默认空实现**。
+  - `ILanguagePack` / `IThemeProvider` 改为**继承 `IPlugin`**，插件类无需再重复实现生命周期方法。
+  - `IThemeProvider` 新增 `EditorBackground` / `EditorForeground`（**带默认实现**，默认复用 `BackgroundColor` / `ForegroundColor`）。
+  - 简化 `EnglishPack` / `BasicTheme` 插件类声明（移除 3 个空方法）。
+  - 文档：更新 `docs/PluginSDK.md`。
 - **M4 插件系统：EnglishPack + BasicTheme 上线（2026-09-10）**
   - `plugins/EnglishPack`：`ILanguagePack` 实现，覆盖菜单/工具栏 23 条 key。
   - `plugins/BasicTheme`：`IThemeProvider` 实现，深色主题 `#1E1E1E`。

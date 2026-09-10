@@ -4,8 +4,8 @@ namespace WFU.PluginSDK;
 /// 主题提供者契约。用于向核心提供界面与编辑器的配色及字体设置。
 /// </summary>
 /// <remarks>
-/// 颜色统一使用十六进制字符串（形如 <c>"#1E1E1E"</c>），由核心转换为
-/// WPF 画刷；字体信息用于编辑器（AvalonEdit）的呈现。
+/// 继承自 <see cref="IPlugin"/>，生命周期方法使用其默认实现。
+/// 颜色统一使用十六进制字符串（形如 <c>"#1E1E1E"</c>），由核心转换为 WPF 画刷。
 /// </remarks>
 /// <example>
 /// <code>
@@ -20,7 +20,7 @@ namespace WFU.PluginSDK;
 /// }
 /// </code>
 /// </example>
-public interface IThemeProvider
+public interface IThemeProvider : IPlugin
 {
     /// <summary>背景色，十六进制字符串，例如 <c>"#1E1E1E"</c>。</summary>
     string BackgroundColor { get; }
@@ -33,4 +33,10 @@ public interface IThemeProvider
 
     /// <summary>字号（磅）。</summary>
     double FontSize { get; }
+
+    /// <summary>编辑器背景色（默认复用 <see cref="BackgroundColor"/>）。</summary>
+    string EditorBackground => BackgroundColor;
+
+    /// <summary>编辑器前景色（默认复用 <see cref="ForegroundColor"/>）。</summary>
+    string EditorForeground => ForegroundColor;
 }
