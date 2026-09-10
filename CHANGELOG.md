@@ -72,6 +72,10 @@
 - `EnglishPack` 缺失 8 个 key（Edit 子项 5、Toggle Panel 2、Bridge Test 1）。
 - 状态栏文本暂未接入语言包。
 
+### Removed
+- 移除各项目模板残留的空类 `Class1.cs`（`WFU.Core` / `WFU.PluginSDK` / `WFU.Bridge`，均无任何引用）。
+- 清理仓库根目录的运行时残留 `bridge-test.txt`。
+
 ### Notes
 - 命名空间统一为 `WFU.PluginSDK`，目标框架 `net8.0`。
 - 本阶段仅定义契约，尚未在 `WFU.Core` 中实现插件加载器（见 Roadmap M2）。
