@@ -6,6 +6,13 @@
 ## [Unreleased]
 
 ### Added
+- **WFU.Core：实现 M1 核心模块（2026-09-10）**
+  - `Services/IFileService.cs` / `Services/FileService.cs`：异步文件读写，写入时自动创建目录，读取不存在文件抛 `FileNotFoundException`。
+  - `Services/ISettingsStore.cs` / `Services/SettingsStore.cs`：基于 `System.Text.Json` 的 `settings.json` 持久化，内部使用 `Dictionary<string, object>`。
+  - `PluginLoader.cs`：`Assembly.LoadFrom` 扫描目录加载 `IPlugin` 实现，容错不中断，`UnloadAll()` 调用 `Dispose()`。
+  - `WFU.Core.csproj`：新增对 `WFU.PluginSDK` 的 `ProjectReference`。
+  - 新增 `docs/Core.md`：详细记载核心模块契约、行为与设计取舍。
+  - 验证：`dotnet build` 0 警告、0 错误。
 - **WFU.PluginSDK：正式落地插件契约（2026-09-10）**
   - `IPlugin`：插件基础接口，定义生命周期方法 `Initialize()` / `Execute()` / `Dispose()`。
   - `PluginAttribute`：插件元数据特性，标注名称（Name）/ 版本（Version）/ 描述（Description）。
