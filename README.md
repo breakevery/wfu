@@ -17,7 +17,7 @@
 > Pre-built binaries and releases are hosted on a separate repository:
 > 预编译的二进制发行版托管在另一个仓库：
 >
-> 👉 **Binary Releases:** *Coming soon / https://github.com/breakevery/wfuexe*
+> 👉 **Binary Releases:**  https://github.com/breakevery/wfuexe
 
 ---
 
