@@ -6,6 +6,11 @@
 ## [Unreleased]
 
 ### Fixed
+- **[M1-FIX] 补齐设置持久化接线（2026-09-10）**
+  - 修复：`SettingsStore` 从未被应用层调用（导致 `settings.json` 不生成）。
+  - 提取 `_settingsStore` 为字段；`OnWindowLoaded` 中 `Load` + `RestoreWindowBounds`（含虚拟屏边界校验）。
+  - `OnWindowClosing` 保存窗口位置/大小（最大化时保存 `RestoreBounds`）。
+  - 验证：`settings.json` 正确生成/恢复，越界回退默认，S6.1 第 2 项转 PASS。
 - **[FIX] 修复 AvalonEdit 双向绑定缺陷 + Alpha 验收（2026-09-10）**
   - 修复：`Behaviors/EditorTextBinding.cs` 改为**单向**（视图模型→编辑器）桥接，反向由 `MainWindow` 的 `TextChanged` 转发。
   - 修复：M2 遗留缺陷——编辑后 `New` / `Open` 无法刷新编辑器（回写覆盖了绑定）。
@@ -15,6 +20,14 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M4 插件系统：EnglishPack + BasicTheme 上线（2026-09-10）**
+  - `plugins/EnglishPack`：`ILanguagePack` 实现，覆盖菜单/工具栏 23 条 key。
+  - `plugins/BasicTheme`：`IThemeProvider` 实现，深色主题 `#1E1E1E`。
+  - `WFU.Host` 启动时自动扫描 `Plugins/`（根 + 一层子目录）加载插件。
+  - `ApplyLanguage()` / `ApplyTheme()` 消费插件数据（语言包方案 B：代码后置硬替换）。
+  - 优雅降级：插件缺失/加载失败时回退到硬编码与默认样式，程序不崩溃。
+  - 新增 `docs/Plugins.md`：插件开发完整文档（加载机制 / 写插件 / 降级 / 故障排查）。
+  - 验证：M4 端到端 15 项全部 PASS（含降级与 Alpha/M3 回归）。
 - **WFU.Bridge / WFU.Host：实现 M3 WebView2 集成与 C#↔JS 双向桥接（2026-09-10）**
   - 新增 `WFU.Bridge` 类库（net8.0）：`WfuBridgeObject`（`[ComVisible(true)]`，含 `ShowMessage` / `GetTimestamp` / `SaveFileAsync` / `Ping`）。
   - 新增 `WFU.Host/Views/WebViewHost.xaml(.cs)`：WebView2 宿主控件，异步且幂等初始化，注册 `AddHostObjectToScript("wfu", ...)`，开启 DevTools。
@@ -47,6 +60,17 @@
 - **文档**
   - 新增 `docs/PluginSDK.md`：详细记载插件契约、生命周期、加载机制与示例。
   - 新增本 `CHANGELOG.md`。
+
+### Changed
+- 两个插件类改为同时实现 `IPlugin` + 能力接口（供 `PluginLoader` 识别）。
+- `MainWindow.xaml` 给 15 个菜单项/工具栏按钮添加 `x:Name`。
+- `MainWindow.xaml(.cs)` 增加窗口位置/大小持久化与 `Closing` 事件。
+
+### Known Issues（计划 M5 处理）
+- `IThemeProvider` 只有 4 属性，缺少 `EditorBackground`/`EditorForeground`（当前为接口外扩展）。
+- `ILanguagePack` / `IThemeProvider` 未继承 `IPlugin`（当前靠多实现兼容）。
+- `EnglishPack` 缺失 8 个 key（Edit 子项 5、Toggle Panel 2、Bridge Test 1）。
+- 状态栏文本暂未接入语言包。
 
 ### Notes
 - 命名空间统一为 `WFU.PluginSDK`，目标框架 `net8.0`。
