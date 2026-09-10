@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using System.Windows;
 using WFU.Core;
 using WFU.Core.Services;
@@ -16,6 +17,7 @@ public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
 
+    /// <summary>初始化主窗口：装配视图模型并接线编辑器事件。</summary>
     public MainWindow()
     {
         InitializeComponent();
@@ -33,6 +35,79 @@ public partial class MainWindow : Window
         // RunCoreModuleTests();
     }
 
+    /// <summary>窗口加载完成：初始化 WebView2 并加载桥接测试页。</summary>
+    private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await RightWebView.InitializeAsync();
+            RightWebView.LoadHtml(LoadEmbeddedResource("test-bridge.html"));
+            _viewModel.StatusText = "WebView2 已就绪";
+            Console.WriteLine("[MainWindow] WebView2 初始化完成，测试页已加载。");
+        }
+        catch (Exception ex)
+        {
+            _viewModel.StatusText = $"WebView2 初始化失败: {ex.Message}";
+            Console.WriteLine($"[MainWindow] WebView2 初始化失败: {ex}");
+            MessageBox.Show(ex.Message, "WebView2 初始化失败", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    /// <summary>C# → JS 反向通信演示：修改预览页 log 区域文本。</summary>
+    private async void TestCSharpToJs_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            await RightWebView.ExecuteScriptAsync(
+                "document.getElementById('log').innerText = 'C# 主动调用 JS 成功';");
+            Console.WriteLine("[BRIDGE TEST] C#→JS 调用完成。");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BRIDGE TEST] C#→JS 失败: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 桥接自检：依次验证 C# → JS、JS → C#（void / 返回值 / 异步），结果输出到控制台。
+    /// </summary>
+    private async void BridgeTest_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            Console.WriteLine("[BRIDGE TEST] ===== 开始 =====");
+
+            // 1) C# → JS
+            await RightWebView.ExecuteScriptAsync(
+                "document.getElementById('log').innerText = 'C# 主动调用 JS 成功';");
+            await Task.Delay(300);
+            var log1 = await RightWebView.ExecuteScriptAsync("document.getElementById('log').innerText");
+            Console.WriteLine($"[BRIDGE TEST] C#→JS 后 log = {log1}");
+
+            // 2) JS → C# 同步 void
+            await RightWebView.ExecuteScriptAsync("testShowMessage()");
+            await Task.Delay(500);
+
+            // 3) JS → C# 带返回值
+            await RightWebView.ExecuteScriptAsync("testGetTimestamp()");
+            await Task.Delay(500);
+            var log2 = await RightWebView.ExecuteScriptAsync("document.getElementById('log').innerText");
+            Console.WriteLine($"[BRIDGE TEST] 时间戳 log = {log2}");
+
+            // 4) JS → C# 异步
+            await RightWebView.ExecuteScriptAsync("testSaveFile()");
+            await Task.Delay(800);
+            var log3 = await RightWebView.ExecuteScriptAsync("document.getElementById('log').innerText");
+            Console.WriteLine($"[BRIDGE TEST] 保存 log = {log3}");
+
+            Console.WriteLine("[BRIDGE TEST] ===== 完成 =====");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[BRIDGE TEST] 失败: {ex}");
+        }
+    }
+
     /// <summary>编辑器文本变化的事件转发（XAML 中注册）。</summary>
     private void Editor_TextChanged(object sender, EventArgs e)
     {
@@ -45,6 +120,21 @@ public partial class MainWindow : Window
         _viewModel.NotifyCaretPositionChanged(
             Editor.TextArea.Caret.Line,
             Editor.TextArea.Caret.Column);
+    }
+
+    /// <summary>读取嵌入资源文本（按文件名后缀匹配）。</summary>
+    private static string LoadEmbeddedResource(string fileNameSuffix)
+    {
+        var assembly = typeof(MainWindow).Assembly;
+        var resourceName = Array.Find(
+            assembly.GetManifestResourceNames(),
+            n => n.EndsWith(fileNameSuffix, StringComparison.OrdinalIgnoreCase))
+            ?? throw new InvalidOperationException($"未找到嵌入资源: {fileNameSuffix}");
+
+        using var stream = assembly.GetManifestResourceStream(resourceName)
+                           ?? throw new InvalidOperationException($"无法读取嵌入资源: {resourceName}");
+        using var reader = new StreamReader(stream);
+        return reader.ReadToEnd();
     }
 
     /// <summary>

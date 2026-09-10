@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <!-- 说明：AddHostObjectToScript 不需要 EnableComHosting（那是给原生 COM 客户端用的，
+         启用后会要求 [ComVisible] 类型带 GuidAttribute 并触发 NETSDK1088）。 -->
+  </PropertyGroup>
+
+</Project>

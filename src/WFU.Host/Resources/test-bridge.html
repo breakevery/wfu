@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>WFU Bridge Test</title>
+    <style>
+        body { font-family: Consolas, monospace; padding: 20px; background: #1e1e1e; color: #d4d4d4; }
+        button { padding: 8px 16px; margin: 5px; background: #0e639c; color: white; border: none; cursor: pointer; }
+        button:hover { background: #1177bb; }
+        #log { margin-top: 20px; padding: 10px; background: #252526; border-left: 3px solid #0e639c; }
+    </style>
+</head>
+<body>
+    <h2>WFU Bridge Test</h2>
+    <button onclick="testShowMessage()">测试 C# 弹消息</button>
+    <button onclick="testGetTimestamp()">测试 C# 返回值</button>
+    <button onclick="testSaveFile()">测试 C# 异步保存</button>
+    <div id="log">等待测试...</div>
+
+    <script>
+        async function testShowMessage() {
+            try {
+                await window.chrome.webview.hostObjects.wfu.ShowMessage("Hello from JS!");
+                document.getElementById('log').innerText = "✅ ShowMessage 调用成功";
+            } catch (e) {
+                document.getElementById('log').innerText = "❌ ShowMessage 失败: " + e;
+            }
+        }
+
+        async function testGetTimestamp() {
+            try {
+                const ts = await window.chrome.webview.hostObjects.wfu.GetTimestamp();
+                document.getElementById('log').innerText = "✅ 时间戳: " + ts;
+            } catch (e) {
+                document.getElementById('log').innerText = "❌ GetTimestamp 失败: " + e;
+            }
+        }
+
+        async function testSaveFile() {
+            try {
+                const ok = await window.chrome.webview.hostObjects.wfu.SaveFileAsync("bridge-test.txt", "Written by JS");
+                document.getElementById('log').innerText = ok ? "✅ 文件保存成功" : "❌ 文件保存失败";
+            } catch (e) {
+                document.getElementById('log').innerText = "❌ SaveFileAsync 失败: " + e;
+            }
+        }
+    </script>
+</body>
+</html>

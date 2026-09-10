@@ -11,3 +11,6 @@
 # OS
 Thumbs.db
 .DS_Store
+
+# 运行时测试产物（M3 桥接自检会产生）
+bridge-test.txt

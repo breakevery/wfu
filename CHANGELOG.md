@@ -6,6 +6,14 @@
 ## [Unreleased]
 
 ### Added
+- **WFU.Bridge / WFU.Host：实现 M3 WebView2 集成与 C#↔JS 双向桥接（2026-09-10）**
+  - 新增 `WFU.Bridge` 类库（net8.0）：`WfuBridgeObject`（`[ComVisible(true)]`，含 `ShowMessage` / `GetTimestamp` / `SaveFileAsync` / `Ping`）。
+  - 新增 `WFU.Host/Views/WebViewHost.xaml(.cs)`：WebView2 宿主控件，异步且幂等初始化，注册 `AddHostObjectToScript("wfu", ...)`，开启 DevTools。
+  - `MainWindow`：右侧（Column 4）挂载 WebViewHost；`Loaded` 时初始化并加载嵌入的 `test-bridge.html`；工具栏新增 `Bridge Test` 自检按钮，View 菜单新增 `Test C# → JS`。
+  - 新增嵌入资源 `Resources/test-bridge.html`。
+  - 新增 `docs/Bridge.md`：记载桥接机制、竞态防护、遇到的坑与已知问题。
+  - 偏差：移除 `EnableComHosting`（会导致 `NETSDK1088`，且 `AddHostObjectToScript` 不需要）；`IsInitialized` 改名 `IsWebViewInitialized`（避免 CS0108）。
+  - 验证：`dotnet build` 0 警告 0 错误；JS→C#（同步/返回值/异步）与 C#→JS 全通，F12 可开 DevTools。
 - **WFU.Host：实现 M2 主窗口 UI（2026-09-10）**
   - `ViewModels/MainViewModel.cs`：MVVM 视图模型（6 个 `[ObservableProperty]` + New/Open/Save/Exit 命令 + Edit/View/About 占位命令）。
   - `MainWindow.xaml`：5 行 Grid 布局（菜单/工具栏/三栏内容/分隔条/状态栏），集成 AvalonEdit（行号、Consolas 14）。
