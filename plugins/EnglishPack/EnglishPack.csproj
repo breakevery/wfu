@@ -4,8 +4,15 @@
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <AssemblyName>EnglishPack</AssemblyName>
-    <RootNamespace>WFU.Plugins.EnglishPack</RootNamespace>
+    <OutputPath>..\..\src\WFU.Host\bin\$(Configuration)\net8.0-windows\Plugins\EnglishPack\</OutputPath>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <CopyLocalLockFileAssemblies>false</CopyLocalLockFileAssemblies>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\WFU.PluginSDK\WFU.PluginSDK.csproj">
+      <Private>false</Private>
+    </ProjectReference>
+  </ItemGroup>
 
 </Project>
