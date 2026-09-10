@@ -5,7 +5,8 @@
         xmlns:behaviors="clr-namespace:WFU.Host.Behaviors"
         xmlns:views="clr-namespace:WFU.Host.Views"
         Title="WFU — WebView For Unity" Height="720" Width="1200"
-        Loaded="MainWindow_Loaded">
+        Loaded="MainWindow_Loaded"
+        Closing="OnWindowClosing">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

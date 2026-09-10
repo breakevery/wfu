@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace WFU.Host;
 public partial class MainWindow : Window
 {
     private readonly MainViewModel _viewModel;
+    private readonly SettingsStore _settingsStore;
 
     /// <summary>当前生效的语言包插件；未加载时为 <c>null</c>，界面需回退到硬编码文本。</summary>
     public static ILanguagePack? CurrentLanguagePack { get; private set; }
@@ -31,9 +33,10 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
-        _viewModel = new MainViewModel(
-            new FileService(),
-            new SettingsStore(Path.Combine(AppContext.BaseDirectory, "settings.json")));
+        // 提取为字段，供窗口生命周期（恢复/保存位置）使用
+        _settingsStore = new SettingsStore(Path.Combine(AppContext.BaseDirectory, "settings.json"));
+
+        _viewModel = new MainViewModel(new FileService(), _settingsStore);
         DataContext = _viewModel;
 
         // 光标位置变化 -> 转发给视图模型更新行列号
@@ -66,6 +69,7 @@ public partial class MainWindow : Window
         LoadPlugins();
         ApplyTheme();
         ApplyLanguage();
+        RestoreWindowBounds();
     }
 
     /// <summary>
@@ -182,6 +186,75 @@ public partial class MainWindow : Window
         catch (Exception ex)
         {
             Console.WriteLine($"[Lang] 应用失败，保留原硬编码: {ex.Message}");
+        }
+    }
+
+    /// <summary>从 settings.json 恢复窗口位置与大小（带虚拟屏边界校验）。</summary>
+    private void RestoreWindowBounds()
+    {
+        try
+        {
+            _settingsStore.Load();
+
+            var left = _settingsStore.Get<double>("window.left", double.NaN);
+            var top = _settingsStore.Get<double>("window.top", double.NaN);
+            var width = _settingsStore.Get<double>("window.width", 1200);
+            var height = _settingsStore.Get<double>("window.height", 800);
+
+            if (!double.IsNaN(left) && !double.IsNaN(top))
+            {
+                var vLeft = SystemParameters.VirtualScreenLeft;
+                var vTop = SystemParameters.VirtualScreenTop;
+                var vRight = vLeft + SystemParameters.VirtualScreenWidth;
+                var vBottom = vTop + SystemParameters.VirtualScreenHeight;
+
+                if (left >= vLeft - 50 && left <= vRight - 100
+                    && top >= vTop - 50 && top <= vBottom - 100)
+                {
+                    WindowStartupLocation = WindowStartupLocation.Manual;
+                    Left = left;
+                    Top = top;
+                }
+                else
+                {
+                    Console.WriteLine("[Settings] 保存的位置超出屏幕，回退默认");
+                }
+            }
+
+            if (width > 400 && height > 300)
+            {
+                Width = width;
+                Height = height;
+            }
+
+            Console.WriteLine($"[Settings] 已恢复窗口: {Left},{Top} {Width}x{Height}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Settings] 恢复窗口失败，使用默认: {ex.Message}");
+        }
+    }
+
+    /// <summary>关闭时保存窗口位置与大小到 settings.json。</summary>
+    private void OnWindowClosing(object sender, CancelEventArgs e)
+    {
+        try
+        {
+            var bounds = WindowState == WindowState.Normal
+                ? new Rect(Left, Top, Width, Height)
+                : RestoreBounds;
+
+            _settingsStore.Set("window.left", bounds.Left);
+            _settingsStore.Set("window.top", bounds.Top);
+            _settingsStore.Set("window.width", bounds.Width);
+            _settingsStore.Set("window.height", bounds.Height);
+            _settingsStore.Save();
+
+            Console.WriteLine($"[Settings] 已保存窗口位置: {bounds}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[Settings] 保存窗口失败: {ex.Message}");
         }
     }
 
