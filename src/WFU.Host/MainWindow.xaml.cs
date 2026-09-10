@@ -53,6 +53,29 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>预览刷新：把编辑器当前内容渲染到右侧 WebView2。</summary>
+    private void Preview_Click(object sender, RoutedEventArgs e)
+    {
+        try
+        {
+            var html = _viewModel.EditorContent;
+            if (string.IsNullOrWhiteSpace(html))
+            {
+                _viewModel.StatusText = "预览：内容为空";
+                return;
+            }
+
+            RightWebView.LoadHtml(html);
+            _viewModel.StatusText = "预览已刷新";
+            Console.WriteLine($"[PREVIEW] 已刷新预览，长度 {html.Length}。");
+        }
+        catch (Exception ex)
+        {
+            _viewModel.StatusText = $"预览失败: {ex.Message}";
+            Console.WriteLine($"[PREVIEW] 失败: {ex.Message}");
+        }
+    }
+
     /// <summary>C# → JS 反向通信演示：修改预览页 log 区域文本。</summary>
     private async void TestCSharpToJs_Click(object sender, RoutedEventArgs e)
     {
@@ -108,9 +131,14 @@ public partial class MainWindow : Window
         }
     }
 
-    /// <summary>编辑器文本变化的事件转发（XAML 中注册）。</summary>
+    /// <summary>编辑器文本变化的事件转发（XAML 中注册）：把文本同步回视图模型并标记已修改。</summary>
     private void Editor_TextChanged(object sender, EventArgs e)
     {
+        // 与视图模型一致时说明是「视图模型 → 编辑器」的同步引起的，忽略，避免误标已修改
+        if (Editor.Text == _viewModel.EditorContent)
+            return;
+
+        _viewModel.EditorContent = Editor.Text;
         _viewModel.NotifyEditorTextChanged();
     }
 

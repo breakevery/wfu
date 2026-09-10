@@ -49,7 +49,7 @@
             <Button Content="Open" Command="{Binding OpenFileCommand}"/>
             <Button Content="Save" Command="{Binding SaveFileCommand}"/>
             <Separator/>
-            <Button Content="Preview"/>
+            <Button Content="Preview" Click="Preview_Click"/>
             <Button Content="Export"/>
             <Separator/>
             <Button Content="Bridge Test" Click="BridgeTest_Click"/>
@@ -85,7 +85,7 @@
                                    FontSize="14"
                                    HorizontalScrollBarVisibility="Auto"
                                    VerticalScrollBarVisibility="Auto"
-                                   behaviors:EditorTextBinding.Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   behaviors:EditorTextBinding.Text="{Binding EditorContent, Mode=OneWay}"
                                    TextChanged="Editor_TextChanged"/>
 
             <GridSplitter Grid.Column="3"
@@ -108,6 +108,20 @@
         <StatusBar Grid.Row="4">
             <StatusBarItem>
                 <TextBlock Text="{Binding StatusText}"/>
+            </StatusBarItem>
+            <StatusBarItem>
+                <TextBlock>
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Setter Property="Text" Value="已保存"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsModified}" Value="True">
+                                    <Setter Property="Text" Value="● 已修改"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>

@@ -5,6 +5,15 @@
 
 ## [Unreleased]
 
+### Fixed
+- **[FIX] 修复 AvalonEdit 双向绑定缺陷 + Alpha 验收（2026-09-10）**
+  - 修复：`Behaviors/EditorTextBinding.cs` 改为**单向**（视图模型→编辑器）桥接，反向由 `MainWindow` 的 `TextChanged` 转发。
+  - 修复：M2 遗留缺陷——编辑后 `New` / `Open` 无法刷新编辑器（回写覆盖了绑定）。
+  - 新增：工具栏 `Preview` 实现（把 `EditorContent` 渲染到 WebView2）。
+  - 新增：状态栏 IsModified 视觉指示器（`● 已修改` / `已保存`）。
+  - 文档：新增 `docs/Alpha.md`（验收结果、修复说明、已知限制）；验收 **8/8 PASS**。
+  - 验证：`dotnet build` 0 警告 0 错误。
+
 ### Added
 - **WFU.Bridge / WFU.Host：实现 M3 WebView2 集成与 C#↔JS 双向桥接（2026-09-10）**
   - 新增 `WFU.Bridge` 类库（net8.0）：`WfuBridgeObject`（`[ComVisible(true)]`，含 `ShowMessage` / `GetTimestamp` / `SaveFileAsync` / `Ping`）。
