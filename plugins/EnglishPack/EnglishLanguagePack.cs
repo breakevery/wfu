@@ -55,6 +55,8 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_new_file", "New File" },
         { "status_open_failed", "Open failed" },
         { "status_save_failed", "Save failed" },
+        // 启动状态（M5-3 收尾）
+        { "status_webview_ready", "WebView2 Ready" },
     };
 
     /// <inheritdoc />

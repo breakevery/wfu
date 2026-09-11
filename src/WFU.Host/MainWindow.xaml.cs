@@ -55,7 +55,8 @@ public partial class MainWindow : Window
         {
             await RightWebView.InitializeAsync();
             RightWebView.LoadHtml(LoadEmbeddedResource("test-bridge.html"));
-            _viewModel.StatusText = "WebView2 已就绪";
+            // 启动就绪状态（立即可见；插件未加载时回退中文，稍后由 ApplyLanguage 本地化刷新）
+            _viewModel.StatusText = CurrentLanguagePack?.GetString("status_webview_ready") ?? "WebView2 已就绪";
             Console.WriteLine("[MainWindow] WebView2 初始化完成，测试页已加载。");
         }
         catch (Exception ex)
@@ -199,6 +200,9 @@ public partial class MainWindow : Window
             // 状态栏静态标签（M5-3）
             StatusBarLineLabel.Text = t.GetString("status_line") + ": ";
             StatusBarColLabel.Text = t.GetString("status_col") + ": ";
+
+            // 启动就绪状态（此时语言包已就绪，覆盖启动时的中文占位）
+            _viewModel.StatusText = t.GetString("status_webview_ready");
 
             Console.WriteLine("[Lang] 已应用语言包文本");
         }

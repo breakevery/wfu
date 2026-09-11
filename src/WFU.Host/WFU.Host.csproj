@@ -23,4 +23,25 @@
     <EmbeddedResource Include="Resources\test-bridge.html" />
   </ItemGroup>
 
+  <!-- M5-4: publish 后自动复制 Plugins 到输出目录 -->
+  <Target Name="CopyPluginsToPublish" AfterTargets="Publish">
+    <PropertyGroup>
+      <_PluginSourceDir>$(MSBuildProjectDirectory)\bin\$(Configuration)\net8.0-windows\Plugins</_PluginSourceDir>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <_PluginFiles Include="$(_PluginSourceDir)\**\*.*" />
+    </ItemGroup>
+
+    <Message Text="Copying @(_PluginFiles->Count()) plugin files to $(PublishDir)Plugins\ ..." Importance="high" />
+
+    <Copy SourceFiles="@(_PluginFiles)"
+          DestinationFiles="@(_PluginFiles->'$(PublishDir)Plugins\%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true"
+          Condition="Exists('$(_PluginSourceDir)')" />
+
+    <Warning Text="插件源目录不存在：$(_PluginSourceDir) —— 请先编译插件再 publish"
+             Condition="!Exists('$(_PluginSourceDir)')" />
+  </Target>
+
 </Project>

@@ -20,6 +20,10 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M5-4 publish 自动复制 Plugins + 收尾本地化（2026-09-11）**
+  - `WFU.Host.csproj` 新增 `CopyPluginsToPublish` Target（`AfterTargets="Publish"`）：自动把 `bin\<Config>\net8.0-windows\Plugins` 复制到 `publish\Plugins`；源目录缺失时输出 Warning。
+  - EnglishPack 新增 `status_webview_ready` key（现共 **35** 条）；`MainWindow` 启动就绪状态改走语言包（在 `ApplyLanguage` 中刷新）。
+  - 验证：publish 日志出现 `Copying 6 plugin files ...`；发布版自动加载 2 个插件；状态栏显示 `WebView2 Ready`；降级显示中文硬编码。
 - **M5-3 状态栏接入语言包（2026-09-11）**
   - `MainViewModel` 新增 `ILanguagePack?` 字段 + `SetLanguagePack()` 注入 + `T(key, fallback)` + `RefreshLanguage()`。
   - 状态消息本地化：`status_new_file` / `status_opened` / `status_open_failed` / `status_saved` / `status_save_failed`。
