@@ -215,7 +215,7 @@ public partial class MainWindow : Window
 
             // Import（M6-3）
             MenuFileImport.Header = t.GetString("menu_file_import");
-            ToolbarImport.Content = t.GetString("menu_file_import");
+            ToolbarImport.Content = t.GetString("toolbar_import");
 
             Console.WriteLine("[Lang] 已应用语言包文本");
         }

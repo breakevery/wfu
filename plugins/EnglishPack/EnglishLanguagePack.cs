@@ -77,6 +77,7 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_import_failed", "Import failed" },
         { "confirm_import_overwrite_title", "Directory Exists" },
         { "confirm_import_overwrite_msg", "Target directory already exists. Merge and continue?" },
+        { "toolbar_import", "Import" },
     };
 
     /// <inheritdoc />

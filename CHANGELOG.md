@@ -20,6 +20,13 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6 项目导出/导入（2026-09-11）**
+  - 新建项目：从 `Templates/` 复制标准骨架（`index.html` / `app.js` / `style.css` / `unity-bridge.js`）。
+  - 左侧文件树：显示项目内 `.html/.js/.css`，双击打开。
+  - 导出为 ZIP：外层套 `{项目名}/` 目录（符合 Unity `StreamingAssets` 习惯）。
+  - 导入项目：解压到 zip 同级目录，自动识别项目根；目录已存在时确认合并。
+  - CanExecute 机制：未打开项目时导出按钮禁用（WFU 首个用例）。
+  - 新增 `docs/Export.md`：项目导出/导入完整文档。
 - **M6-3 导入功能：打开已导出的 zip 项目（2026-09-11）**
   - `MainViewModel` 新增 `ImportCommand` + `ResolveProjectRoot()`（自动识别 zip 内的 `{项目名}/` 层级）。
   - 解压到 zip 同级同名目录；目标已存在时弹窗确认合并（否 → 取消；是 → 合并）。
@@ -121,6 +128,8 @@
 - 两个插件类改为同时实现 `IPlugin` + 能力接口（供 `PluginLoader` 识别）。
 - `MainWindow.xaml` 给 15 个菜单项/工具栏按钮添加 `x:Name`。
 - `MainWindow.xaml(.cs)` 增加窗口位置/大小持久化与 `Closing` 事件。
+- `IFileService` 扩展目录级 API（`DirectoryExists` / `CreateDirectory` / `EnumerateFiles`，M6-1a）。
+- 工具栏 `Import` 按钮改用独立 key `toolbar_import`（不带省略号，M6-4a）。
 
 ### Known Issues（计划 M5 处理）
 - `IThemeProvider` 只有 4 属性，缺少 `EditorBackground`/`EditorForeground`（当前为接口外扩展）。

@@ -76,6 +76,7 @@ This repository contains the **full source code** of the IDE. Compiled binaries 
 | 🌍 **Language Pack / 语言包** | `ILanguagePack` 接口，官方附带 EnglishPack |
 | 🎨 **Theme Provider / 主题** | `IThemeProvider` 接口，官方附带 BasicTheme（深色） |
 | 🛡️ **Global Exception Handler / 全局异常** | AppDomain + Dispatcher 双通道，程序不闪退 |
+| 📦 **Project System / 项目系统** | 新建/导入项目，左侧文件树管理，一键导出 ZIP（含 Unity StreamingAssets 结构） |
 
 ---
 
