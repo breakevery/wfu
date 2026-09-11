@@ -29,6 +29,9 @@
                 <MenuItem x:Name="MenuFileExport"
                           Header="导出为 ZIP..."
                           Command="{Binding ExportCommand}"/>
+                <MenuItem x:Name="MenuFileImport"
+                          Header="导入项目..."
+                          Command="{Binding ImportCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="MenuFileExit" Header="Exit" Command="{Binding ExitAppCommand}"/>
             </MenuItem>
@@ -56,6 +59,11 @@
             <Button x:Name="ToolbarNewProject"
                     Content="新建项目"
                     Command="{Binding NewProjectCommand}"
+                    Padding="8,4"
+                    Margin="2,0"/>
+            <Button x:Name="ToolbarImport"
+                    Content="导入"
+                    Command="{Binding ImportCommand}"
                     Padding="8,4"
                     Margin="2,0"/>
             <Separator/>

@@ -148,7 +148,7 @@ public class EnglishLanguagePack : IPlugin, ILanguagePack
 
 | 插件 | 版本 | 能力 | 说明 |
 |------|------|------|------|
-| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏/状态栏/项目/导出共 **46** 条 key |
+| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏/状态栏/项目/导入导出共 **52** 条 key |
 | **BasicTheme** | 1.0.0 | `IThemeProvider` | 深色主题（背景 `#1E1E1E`、前景 `#D4D4D4`、Consolas 14） |
 
 两者均位于仓库根 `plugins/` 下，已加入解决方案但不参与主程序编译（各自输出到宿主 `Plugins/` 子目录）。

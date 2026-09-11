@@ -20,6 +20,14 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6-3 导入功能：打开已导出的 zip 项目（2026-09-11）**
+  - `MainViewModel` 新增 `ImportCommand` + `ResolveProjectRoot()`（自动识别 zip 内的 `{项目名}/` 层级）。
+  - 解压到 zip 同级同名目录；目标已存在时弹窗确认合并（否 → 取消；是 → 合并）。
+  - 含 **zip slip 安全防护**（校验解压目标不逃出目标目录）。
+  - `MainWindow.xaml`：File 菜单新增 `Import Project...`；工具栏新增 `Import`。
+  - `ApplyLanguage()` 补 `MenuFileImport.Header` / `ToolbarImport.Content`。
+  - EnglishPack 新增 6 个 key（`menu_file_import` / `dialog_import_title` / `status_import_success` / `status_import_failed` / `confirm_import_overwrite_title` / `confirm_import_overwrite_msg`），现共 52 条。
+  - 验证：首次导入 / 重复导入（否→取消、是→合并）/ 降级 全 PASS。
 - **M6-2 Export 导出功能（含首个 CanExecute 机制）（2026-09-11）**
   - `MainViewModel` 新增 `ExportCommand`（`CanExecute = HasProject`）+ `CanExport()`；`_currentProjectPath` 加 `[NotifyCanExecuteChangedFor(nameof(ExportCommand))]`（WFU **首个 CanExecute 用例**）。
   - 导出实现：`ZipArchive` 逐文件添加，zip 外层套 `{项目名}/` 目录（`CompressionLevel.Optimal`）。

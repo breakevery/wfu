@@ -213,6 +213,10 @@ public partial class MainWindow : Window
             // Export（M6-2）
             MenuFileExport.Header = t.GetString("menu_file_export");
 
+            // Import（M6-3）
+            MenuFileImport.Header = t.GetString("menu_file_import");
+            ToolbarImport.Content = t.GetString("menu_file_import");
+
             Console.WriteLine("[Lang] 已应用语言包文本");
         }
         catch (Exception ex)

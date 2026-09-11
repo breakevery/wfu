@@ -70,6 +70,13 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_export_success", "Exported" },
         { "status_export_failed", "Export failed" },
         { "status_no_project", "No project opened" },
+        // Import（M6-3）
+        { "menu_file_import", "Import Project..." },
+        { "dialog_import_title", "Import Project from ZIP" },
+        { "status_import_success", "Imported" },
+        { "status_import_failed", "Import failed" },
+        { "confirm_import_overwrite_title", "Directory Exists" },
+        { "confirm_import_overwrite_msg", "Target directory already exists. Merge and continue?" },
     };
 
     /// <inheritdoc />

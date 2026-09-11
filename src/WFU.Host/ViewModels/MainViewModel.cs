@@ -345,6 +345,114 @@ public partial class MainViewModel : ObservableObject
         await Task.CompletedTask; // 保持 async 签名，未来可扩展
     }
 
+    /// <summary>导入已导出的 zip 包，解压到 zip 同级同名目录并设为当前项目。</summary>
+    [RelayCommand]
+    private async Task Import()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Title = T("dialog_import_title", "从 ZIP 导入项目"),
+            Filter = "ZIP (*.zip)|*.zip|所有文件 (*.*)|*.*"
+        };
+        if (dialog.ShowDialog() != true) return;
+
+        var zipPath = dialog.FileName;
+
+        // 目标目录 = zip 同级同名目录（去扩展名）
+        var targetDir = Path.Combine(
+            Path.GetDirectoryName(zipPath) ?? "",
+            Path.GetFileNameWithoutExtension(zipPath));
+
+        try
+        {
+            // 目标目录已存在 → 确认合并
+            if (Directory.Exists(targetDir))
+            {
+                var confirm = MessageBox.Show(
+                    $"{T("confirm_import_overwrite_msg", "目标目录已存在，是否合并并继续？")}\n\n{targetDir}",
+                    T("confirm_import_overwrite_title", "目录已存在"),
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirm != MessageBoxResult.Yes) return;
+            }
+            else
+            {
+                Directory.CreateDirectory(targetDir);
+            }
+
+            // 解压（zip 内可能有一层 {项目名}/ 目录）
+            using (var archive = ZipFile.OpenRead(zipPath))
+            {
+                foreach (var entry in archive.Entries)
+                {
+                    // 跳过目录条目
+                    if (string.IsNullOrEmpty(entry.Name)) continue;
+
+                    var destPath = Path.Combine(targetDir, entry.FullName);
+
+                    // 安全检查：防止 zip slip（../ 逃逸）
+                    var destFull = Path.GetFullPath(destPath);
+                    var targetFull = Path.GetFullPath(targetDir) + Path.DirectorySeparatorChar;
+                    if (!destFull.StartsWith(targetFull, StringComparison.OrdinalIgnoreCase))
+                    {
+                        throw new InvalidOperationException(
+                            $"检测到不安全的 zip 条目: {entry.FullName}");
+                    }
+
+                    // 确保目标目录存在
+                    var destDir = Path.GetDirectoryName(destPath);
+                    if (!string.IsNullOrEmpty(destDir)) Directory.CreateDirectory(destDir);
+
+                    entry.ExtractToFile(destPath, overwrite: true);
+                }
+            }
+
+            // 判断项目根：如果解压后只有 1 个子目录且它含 index.html，则用它
+            var projectRoot = ResolveProjectRoot(targetDir);
+
+            // 设为当前项目
+            CurrentProjectPath = projectRoot;
+            RefreshProjectFiles();
+
+            // 自动打开 index.html
+            var indexPath = Path.Combine(projectRoot, "index.html");
+            if (_fileService.FileExists(indexPath))
+            {
+                EditorContent = await _fileService.ReadFileAsync(indexPath);
+                CurrentFilePath = indexPath;
+                IsModified = false;
+            }
+
+            StatusText = $"{T("status_import_success", "已导入")}: {projectRoot}";
+            OnPropertyChanged(nameof(HasProject));
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"{T("status_import_failed", "导入失败")}: {ex.Message}";
+            MessageBox.Show(ex.Message, T("status_import_failed", "导入失败"),
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>如果 <paramref name="targetDir"/> 下只有一个子目录且含 index.html，返回该子目录；否则返回原目录。</summary>
+    /// <param name="targetDir">解压目标目录。</param>
+    /// <returns>项目根目录。</returns>
+    private static string ResolveProjectRoot(string targetDir)
+    {
+        if (File.Exists(Path.Combine(targetDir, "index.html")))
+            return targetDir;
+
+        var subDirs = Directory.GetDirectories(targetDir);
+        if (subDirs.Length == 1 &&
+            File.Exists(Path.Combine(subDirs[0], "index.html")))
+        {
+            return subDirs[0];
+        }
+
+        return targetDir;
+    }
+
     /// <summary>退出应用。</summary>
     [RelayCommand]
     private void ExitApp()
