@@ -20,6 +20,13 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6-2 Export 导出功能（含首个 CanExecute 机制）（2026-09-11）**
+  - `MainViewModel` 新增 `ExportCommand`（`CanExecute = HasProject`）+ `CanExport()`；`_currentProjectPath` 加 `[NotifyCanExecuteChangedFor(nameof(ExportCommand))]`（WFU **首个 CanExecute 用例**）。
+  - 导出实现：`ZipArchive` 逐文件添加，zip 外层套 `{项目名}/` 目录（`CompressionLevel.Optimal`）。
+  - `MainWindow.xaml`：File 菜单新增 `Export as ZIP...`；`ToolbarExport` 绑定 `ExportCommand`。
+  - `ApplyLanguage()` 补 `MenuFileExport.Header`。
+  - EnglishPack 新增 5 个 key（`menu_file_export` / `dialog_export_title` / `status_export_success` / `status_export_failed` / `status_no_project`），现共 46 条。
+  - 验证：未打开项目时按钮禁用；新建项目后启用；导出 zip 结构为 `WFU-Test/{4 文件}` 且可正常解压；降级显示中文、不崩溃。
 - **M6-1b-2 项目系统：新建项目 + 文件树（2026-09-11）**
   - `MainViewModel` 新增 `CurrentProjectPath`（`[ObservableProperty]`）、`ProjectFiles`（`ObservableCollection<string>`）、`HasProject`，以及 `NewProjectCommand`。
   - `NewProject`：弹出保存对话框选目录 → `CreateDirectory` → 把 `Templates/` 下 4 个模板写入 → 设为当前项目 → 自动打开 `index.html`。

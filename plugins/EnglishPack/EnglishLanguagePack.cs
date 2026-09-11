@@ -64,6 +64,12 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_project_failed", "Project creation failed" },
         { "status_project_opened", "Opened" },
         { "dialog_new_project_title", "Create New Project" },
+        // Export（M6-2）
+        { "menu_file_export", "Export as ZIP..." },
+        { "dialog_export_title", "Export Project as ZIP" },
+        { "status_export_success", "Exported" },
+        { "status_export_failed", "Export failed" },
+        { "status_no_project", "No project opened" },
     };
 
     /// <inheritdoc />

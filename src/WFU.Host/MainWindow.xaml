@@ -26,6 +26,9 @@
                 <MenuItem x:Name="MenuFileNew" Header="New" Command="{Binding NewFileCommand}"/>
                 <MenuItem x:Name="MenuFileOpen" Header="Open" Command="{Binding OpenFileCommand}"/>
                 <MenuItem x:Name="MenuFileSave" Header="Save" Command="{Binding SaveFileCommand}"/>
+                <MenuItem x:Name="MenuFileExport"
+                          Header="导出为 ZIP..."
+                          Command="{Binding ExportCommand}"/>
                 <Separator/>
                 <MenuItem x:Name="MenuFileExit" Header="Exit" Command="{Binding ExitAppCommand}"/>
             </MenuItem>
@@ -61,7 +64,7 @@
             <Button x:Name="ToolbarSave" Content="Save" Command="{Binding SaveFileCommand}"/>
             <Separator/>
             <Button x:Name="ToolbarPreview" Content="Preview" Click="Preview_Click"/>
-            <Button x:Name="ToolbarExport" Content="Export"/>
+            <Button x:Name="ToolbarExport" Content="Export" Command="{Binding ExportCommand}"/>
             <Separator/>
             <Button x:Name="ToolbarBridgeTest" Content="Bridge Test" Click="BridgeTest_Click"/>
         </ToolBar>

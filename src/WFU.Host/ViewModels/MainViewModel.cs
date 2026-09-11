@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -93,6 +94,7 @@ public partial class MainViewModel : ObservableObject
 
     /// <summary>当前项目根目录（<c>null</c> 表示未打开项目）。</summary>
     [ObservableProperty]
+    [NotifyCanExecuteChangedFor(nameof(ExportCommand))]
     private string? _currentProjectPath;
 
     /// <summary>当前项目下的文件列表（仅文件名）。</summary>
@@ -281,6 +283,66 @@ public partial class MainViewModel : ObservableObject
         {
             StatusText = $"{T("status_open_failed", "打开失败")}: {ex.Message}";
         }
+    }
+
+    /// <summary>Export 命令的 CanExecute：只有打开项目后才可用。</summary>
+    /// <returns>已打开项目返回 <c>true</c>。</returns>
+    private bool CanExport() => HasProject;
+
+    /// <summary>导出当前项目为 ZIP（外层套一层 <c>{项目名}/</c> 目录）。</summary>
+    [RelayCommand(CanExecute = nameof(CanExport))]
+    private async Task Export()
+    {
+        if (string.IsNullOrEmpty(CurrentProjectPath))
+        {
+            StatusText = T("status_no_project", "未打开项目");
+            return;
+        }
+
+        var projectName = Path.GetFileName(CurrentProjectPath.TrimEnd(
+            Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+        if (string.IsNullOrEmpty(projectName))
+            projectName = "project";
+
+        var dialog = new SaveFileDialog
+        {
+            Title = T("dialog_export_title", "导出项目为 ZIP"),
+            Filter = "ZIP (*.zip)|*.zip",
+            FileName = $"{projectName}.zip"
+        };
+        if (dialog.ShowDialog() != true) return;
+
+        var zipPath = dialog.FileName;
+
+        try
+        {
+            // 若目标 zip 已存在，先删除（避免追加）
+            if (File.Exists(zipPath)) File.Delete(zipPath);
+
+            // 用 ZipArchive 逐文件添加，外层套 {projectName}/
+            using (var zip = ZipFile.Open(zipPath, ZipArchiveMode.Create))
+            {
+                var projectRoot = CurrentProjectPath!;
+                foreach (var filePath in Directory.EnumerateFiles(
+                    projectRoot, "*.*", SearchOption.AllDirectories))
+                {
+                    var relative = Path.GetRelativePath(projectRoot, filePath)
+                        .Replace('\\', '/');
+                    var entryName = $"{projectName}/{relative}";
+                    zip.CreateEntryFromFile(filePath, entryName, CompressionLevel.Optimal);
+                }
+            }
+
+            StatusText = $"{T("status_export_success", "已导出")}: {zipPath}";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"{T("status_export_failed", "导出失败")}: {ex.Message}";
+            MessageBox.Show(ex.Message, T("status_export_failed", "导出失败"),
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+
+        await Task.CompletedTask; // 保持 async 签名，未来可扩展
     }
 
     /// <summary>退出应用。</summary>

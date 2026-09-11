@@ -210,6 +210,9 @@ public partial class MainWindow : Window
             MenuFileNewProject.Header = t.GetString("menu_file_new_project");
             ToolbarNewProject.Content = t.GetString("toolbar_new_project");
 
+            // Export（M6-2）
+            MenuFileExport.Header = t.GetString("menu_file_export");
+
             Console.WriteLine("[Lang] 已应用语言包文本");
         }
         catch (Exception ex)
