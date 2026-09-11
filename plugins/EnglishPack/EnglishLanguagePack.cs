@@ -57,6 +57,13 @@ public class EnglishLanguagePack : ILanguagePack
         { "status_save_failed", "Save failed" },
         // 启动状态（M5-3 收尾）
         { "status_webview_ready", "WebView2 Ready" },
+        // 项目系统（M6-1b-2）
+        { "menu_file_new_project", "New Project..." },
+        { "toolbar_new_project", "New Project" },
+        { "status_project_created", "Project created" },
+        { "status_project_failed", "Project creation failed" },
+        { "status_project_opened", "Opened" },
+        { "dialog_new_project_title", "Create New Project" },
     };
 
     /// <inheritdoc />

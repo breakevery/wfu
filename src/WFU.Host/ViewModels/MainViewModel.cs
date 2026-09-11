@@ -1,4 +1,7 @@
 using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -88,6 +91,16 @@ public partial class MainViewModel : ObservableObject
         OnPropertyChanged(nameof(SaveStateText));
     }
 
+    /// <summary>当前项目根目录（<c>null</c> 表示未打开项目）。</summary>
+    [ObservableProperty]
+    private string? _currentProjectPath;
+
+    /// <summary>当前项目下的文件列表（仅文件名）。</summary>
+    public ObservableCollection<string> ProjectFiles { get; } = new();
+
+    /// <summary>项目是否已打开。</summary>
+    public bool HasProject => !string.IsNullOrEmpty(CurrentProjectPath);
+
     /// <summary>新建文件：清空内容并重置为未命名状态。</summary>
     [RelayCommand]
     private void NewFile()
@@ -156,6 +169,117 @@ public partial class MainViewModel : ObservableObject
         {
             StatusText = $"{T("status_save_failed", "保存失败")}: {ex.Message}";
             MessageBox.Show(ex.Message, "保存失败", MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>新建项目：在用户选定目录生成模板骨架，并作为当前工作区打开。</summary>
+    [RelayCommand]
+    private async Task NewProject()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Title = T("dialog_new_project_title", "创建新项目"),
+            Filter = "HTML (*.html)|*.html",
+            FileName = "index.html",
+            OverwritePrompt = false
+        };
+
+        if (dialog.ShowDialog() != true) return;
+
+        // 用户选择的路径形如 C:\Projects\MyExp\index.html，取其目录作为项目根
+        var targetDir = Path.GetDirectoryName(dialog.FileName);
+        if (string.IsNullOrEmpty(targetDir)) return;
+
+        try
+        {
+            // 1. 创建项目目录
+            _fileService.CreateDirectory(targetDir);
+
+            // 2. 复制模板文件
+            var templatesDir = Path.Combine(AppContext.BaseDirectory, "Templates");
+            if (!_fileService.DirectoryExists(templatesDir))
+            {
+                throw new DirectoryNotFoundException($"Templates 目录不存在: {templatesDir}");
+            }
+
+            foreach (var templateFile in _fileService.EnumerateFiles(templatesDir, "*.*"))
+            {
+                var fileName = Path.GetFileName(templateFile);
+                var content = await _fileService.ReadFileAsync(templateFile);
+                var targetPath = Path.Combine(targetDir, fileName);
+                await _fileService.WriteFileAsync(targetPath, content);
+            }
+
+            // 3. 设为当前项目
+            CurrentProjectPath = targetDir;
+            RefreshProjectFiles();
+
+            // 4. 自动打开 index.html
+            var indexPath = Path.Combine(targetDir, "index.html");
+            if (_fileService.FileExists(indexPath))
+            {
+                EditorContent = await _fileService.ReadFileAsync(indexPath);
+                CurrentFilePath = indexPath;
+                IsModified = false;
+            }
+
+            StatusText = $"{T("status_project_created", "项目已创建")}: {targetDir}";
+            OnPropertyChanged(nameof(HasProject));
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"{T("status_project_failed", "项目创建失败")}: {ex.Message}";
+            MessageBox.Show(ex.Message, T("status_project_failed", "项目创建失败"),
+                MessageBoxButton.OK, MessageBoxImage.Warning);
+        }
+    }
+
+    /// <summary>刷新 <see cref="ProjectFiles"/> 集合（枚举项目根下的 .html/.htm/.js/.css）。</summary>
+    private void RefreshProjectFiles()
+    {
+        ProjectFiles.Clear();
+        if (string.IsNullOrEmpty(CurrentProjectPath)) return;
+        if (!_fileService.DirectoryExists(CurrentProjectPath)) return;
+
+        var extensions = new[] { "*.html", "*.htm", "*.js", "*.css" };
+        var allFiles = extensions
+            .SelectMany(ext => _fileService.EnumerateFiles(CurrentProjectPath, ext))
+            .Select(Path.GetFileName)
+            .Where(name => !string.IsNullOrEmpty(name))
+            .Distinct()
+            .OrderBy(name => name);
+
+        foreach (var file in allFiles)
+        {
+            ProjectFiles.Add(file!);
+        }
+    }
+
+    /// <summary>根据文件名拼出完整路径。</summary>
+    /// <param name="fileName">文件名。</param>
+    /// <returns>完整路径；未打开项目时返回 <c>null</c>。</returns>
+    public string? GetFullPath(string fileName)
+        => string.IsNullOrEmpty(CurrentProjectPath)
+            ? null
+            : Path.Combine(CurrentProjectPath, fileName);
+
+    /// <summary>从文件树打开文件。</summary>
+    /// <param name="fileName">文件名（不含路径）。</param>
+    public async Task OpenProjectFileAsync(string fileName)
+    {
+        var fullPath = GetFullPath(fileName);
+        if (string.IsNullOrEmpty(fullPath) || !_fileService.FileExists(fullPath)) return;
+
+        try
+        {
+            EditorContent = await _fileService.ReadFileAsync(fullPath);
+            CurrentFilePath = fullPath;
+            IsModified = false;
+            StatusText = $"{T("status_project_opened", "已打开")}: {fileName}";
+        }
+        catch (Exception ex)
+        {
+            StatusText = $"{T("status_open_failed", "打开失败")}: {ex.Message}";
         }
     }
 

@@ -20,6 +20,14 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6-1b-2 项目系统：新建项目 + 文件树（2026-09-11）**
+  - `MainViewModel` 新增 `CurrentProjectPath`（`[ObservableProperty]`）、`ProjectFiles`（`ObservableCollection<string>`）、`HasProject`，以及 `NewProjectCommand`。
+  - `NewProject`：弹出保存对话框选目录 → `CreateDirectory` → 把 `Templates/` 下 4 个模板写入 → 设为当前项目 → 自动打开 `index.html`。
+  - 新增 `RefreshProjectFiles()` / `GetFullPath()` / `OpenProjectFileAsync()`。
+  - `MainWindow.xaml`：File 菜单新增 `New Project...`、工具栏新增 `New Project`，`LeftPanel` TreeView 绑定 `ProjectFiles` + 双击打开。
+  - `MainWindow.xaml.cs`：新增 `ProjectTree_MouseDoubleClick`；`ApplyLanguage()` 补 2 项。
+  - EnglishPack 新增 6 个 key（`menu_file_new_project` / `toolbar_new_project` / `status_project_created` / `status_project_failed` / `status_project_opened` / `dialog_new_project_title`），现共 41 条。
+  - 验证：新建项目/双击打开/修改保存/降级 4 项全 PASS；`dotnet build` 0 警告 0 错误。
 - **M6-1b-1 新增项目模板文件（2026-09-11）**
   - 新增 `src/WFU.Host/Templates/`：`index.html` / `app.js` / `style.css` / `unity-bridge.js`。
   - `unity-bridge.js` 提供 preview 模式的 mock（Unity 宿主侧会覆盖）。

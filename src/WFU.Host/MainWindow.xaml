@@ -19,6 +19,10 @@
         <!-- Row 0: 菜单栏 -->
         <Menu Grid.Row="0">
             <MenuItem x:Name="MenuFile" Header="File">
+                <MenuItem x:Name="MenuFileNewProject"
+                          Header="新建项目..."
+                          Command="{Binding NewProjectCommand}"/>
+                <Separator/>
                 <MenuItem x:Name="MenuFileNew" Header="New" Command="{Binding NewFileCommand}"/>
                 <MenuItem x:Name="MenuFileOpen" Header="Open" Command="{Binding OpenFileCommand}"/>
                 <MenuItem x:Name="MenuFileSave" Header="Save" Command="{Binding SaveFileCommand}"/>
@@ -46,6 +50,12 @@
 
         <!-- Row 1: 工具栏 -->
         <ToolBar Grid.Row="1">
+            <Button x:Name="ToolbarNewProject"
+                    Content="新建项目"
+                    Command="{Binding NewProjectCommand}"
+                    Padding="8,4"
+                    Margin="2,0"/>
+            <Separator/>
             <Button x:Name="ToolbarNew" Content="New" Command="{Binding NewFileCommand}"/>
             <Button x:Name="ToolbarOpen" Content="Open" Command="{Binding OpenFileCommand}"/>
             <Button x:Name="ToolbarSave" Content="Save" Command="{Binding SaveFileCommand}"/>
@@ -69,6 +79,9 @@
             <!-- Col 0: 左侧文件树（暂留空） -->
             <TreeView x:Name="LeftPanel"
                       Grid.Column="0"
+                      Width="250"
+                      ItemsSource="{Binding ProjectFiles}"
+                      MouseDoubleClick="ProjectTree_MouseDoubleClick"
                       BorderThickness="0,0,1,0"
                       BorderBrush="#DDDDDD"/>
 

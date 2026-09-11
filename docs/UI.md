@@ -26,7 +26,7 @@
 
 | 列 | 宽度 | 内容 |
 |----|------|------|
-| Col 0 | `250` | 左侧文件树（`TreeView`，暂留空） |
+| Col 0 | `250` | 左侧项目文件树（`TreeView` + `LeftPanel`，绑定 `ProjectFiles`，双击打开文件；**M6-1b-2 实装**） |
 | Col 1 | `*` | AvalonEdit 编辑器 |
 | Col 2 | `400` | 右侧预览区（占位，M3 接入 WebView2） |
 

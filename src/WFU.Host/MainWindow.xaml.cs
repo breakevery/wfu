@@ -5,6 +5,8 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using WFU.Core;
 using WFU.Core.Services;
@@ -204,6 +206,10 @@ public partial class MainWindow : Window
             // 启动就绪状态（此时语言包已就绪，覆盖启动时的中文占位）
             _viewModel.StatusText = t.GetString("status_webview_ready");
 
+            // 项目系统（M6-1b-2）
+            MenuFileNewProject.Header = t.GetString("menu_file_new_project");
+            ToolbarNewProject.Content = t.GetString("toolbar_new_project");
+
             Console.WriteLine("[Lang] 已应用语言包文本");
         }
         catch (Exception ex)
@@ -376,6 +382,14 @@ public partial class MainWindow : Window
         _viewModel.NotifyCaretPositionChanged(
             Editor.TextArea.Caret.Line,
             Editor.TextArea.Caret.Column);
+    }
+
+    /// <summary>文件树双击：打开选中的项目文件（M6-1b-2）。</summary>
+    private async void ProjectTree_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is not TreeView tree) return;
+        if (tree.SelectedItem is not string fileName) return;
+        await _viewModel.OpenProjectFileAsync(fileName);
     }
 
     /// <summary>读取嵌入资源文本（按文件名后缀匹配）。</summary>
