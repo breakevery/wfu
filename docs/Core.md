@@ -37,6 +37,9 @@ M1 阶段落地其中的三块：
 | `ReadFileAsync` | `Task<string> ReadFileAsync(string path)` | 异步读取全文；文件不存在抛 `FileNotFoundException` |
 | `WriteFileAsync` | `Task WriteFileAsync(string path, string content)` | 异步写入；目录不存在时用 `Directory.CreateDirectory` 自动创建 |
 | `FileExists` | `bool FileExists(string path)` | 判断文件是否存在 |
+| `DirectoryExists` | `bool DirectoryExists(string path)` | 判断目录是否存在（M6-1a 新增） |
+| `CreateDirectory` | `void CreateDirectory(string path)` | 创建目录（已存在时静默返回，M6-1a 新增） |
+| `EnumerateFiles` | `IEnumerable<string> EnumerateFiles(string path, string searchPattern)` | 非递归枚举目录下文件；目录不存在返回空序列（M6-1a 新增） |
 
 ### 行为约定
 

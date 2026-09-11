@@ -38,4 +38,32 @@ public sealed class FileService : IFileService
         ArgumentNullException.ThrowIfNull(path);
         return File.Exists(path);
     }
+
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="path"/> 为 <c>null</c> 时抛出。</exception>
+    public bool DirectoryExists(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        return Directory.Exists(path);
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="path"/> 为 <c>null</c> 时抛出。</exception>
+    public void CreateDirectory(string path)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+        Directory.CreateDirectory(path);
+    }
+
+    /// <inheritdoc />
+    /// <exception cref="ArgumentNullException"><paramref name="path"/> 为 <c>null</c> 时抛出。</exception>
+    public IEnumerable<string> EnumerateFiles(string path, string searchPattern)
+    {
+        ArgumentNullException.ThrowIfNull(path);
+
+        if (!Directory.Exists(path))
+            return Enumerable.Empty<string>();
+
+        return Directory.EnumerateFiles(path, searchPattern, SearchOption.TopDirectoryOnly);
+    }
 }

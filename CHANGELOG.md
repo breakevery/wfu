@@ -20,6 +20,11 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6-1a 扩展 IFileService：新增目录级 API（2026-09-11）**
+  - `IFileService` / `FileService` 新增 `DirectoryExists` / `CreateDirectory` / `EnumerateFiles`（非递归）。
+  - 现有 3 个文件方法签名不变；**临时解冻 `WFU.Core`**（M6-1 完成后重新冻结）。
+  - 为 M6-1 项目模板系统（生成项目骨架 + 文件树）提供目录抽象。
+  - 验证：`dotnet build` 0 警告 0 错误；程序启动行为无变化。
 - **M5-4 publish 自动复制 Plugins + 收尾本地化（2026-09-11）**
   - `WFU.Host.csproj` 新增 `CopyPluginsToPublish` Target（`AfterTargets="Publish"`）：自动把 `bin\<Config>\net8.0-windows\Plugins` 复制到 `publish\Plugins`；源目录缺失时输出 Warning。
   - EnglishPack 新增 `status_webview_ready` key（现共 **35** 条）；`MainWindow` 启动就绪状态改走语言包（在 `ApplyLanguage` 中刷新）。
