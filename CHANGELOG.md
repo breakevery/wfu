@@ -20,6 +20,11 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M6-1b-1 新增项目模板文件（2026-09-11）**
+  - 新增 `src/WFU.Host/Templates/`：`index.html` / `app.js` / `style.css` / `unity-bridge.js`。
+  - `unity-bridge.js` 提供 preview 模式的 mock（Unity 宿主侧会覆盖）。
+  - `WFU.Host.csproj` 新增 `Content` + `PreserveNewest`：自动复制模板到输出目录与 publish。
+  - 验证：`dotnet build` 0 警告 0 错误；Debug 与 publish 输出均带 4 个模板文件。
 - **M6-1a 扩展 IFileService：新增目录级 API（2026-09-11）**
   - `IFileService` / `FileService` 新增 `DirectoryExists` / `CreateDirectory` / `EnumerateFiles`（非递归）。
   - 现有 3 个文件方法签名不变；**临时解冻 `WFU.Core`**（M6-1 完成后重新冻结）。

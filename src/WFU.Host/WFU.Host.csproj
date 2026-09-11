@@ -23,6 +23,13 @@
     <EmbeddedResource Include="Resources\test-bridge.html" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="Templates\**\*.*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
   <!-- M5-4: publish 后自动复制 Plugins 到输出目录 -->
   <Target Name="CopyPluginsToPublish" AfterTargets="Publish">
     <PropertyGroup>
