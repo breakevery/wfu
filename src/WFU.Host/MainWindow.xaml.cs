@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -52,6 +53,9 @@ public partial class MainWindow : Window
     /// <summary>窗口加载完成：初始化 WebView2、加载插件并应用主题。</summary>
     private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
     {
+        // 0) 先加载设置（语言包选择需要读 settings 里的 language 字段）
+        _settingsStore.Load();
+
         // 1) 初始化 WebView2 并加载桥接测试页
         try
         {
@@ -105,7 +109,29 @@ public partial class MainWindow : Window
                 Console.WriteLine($"[PluginLoader] 插件目录不存在: {pluginDir}");
             }
 
-            CurrentLanguagePack = loader.Plugins.OfType<ILanguagePack>().FirstOrDefault();
+            // 按 settings 里的 language 字段匹配插件 Name
+            var preferredLanguage = _settingsStore.Get<string>("language", "ChinesePack");
+            CurrentLanguagePack = loader.Plugins
+                .OfType<ILanguagePack>()
+                .FirstOrDefault(p => GetPluginName(p) == preferredLanguage);
+
+            if (CurrentLanguagePack != null)
+            {
+                Console.WriteLine($"[Lang] 按 settings 选择语言包: {preferredLanguage}");
+            }
+            else
+            {
+                // 回退：取第一个可用语言包
+                CurrentLanguagePack = loader.Plugins.OfType<ILanguagePack>().FirstOrDefault();
+                if (CurrentLanguagePack != null)
+                {
+                    Console.WriteLine($"[Lang] 未找到 {preferredLanguage} 语言包，回退到 {GetPluginName(CurrentLanguagePack)}");
+                }
+                else
+                {
+                    Console.WriteLine("[Lang] 无任何语言包可用");
+                }
+            }
             CurrentTheme = loader.Plugins.OfType<IThemeProvider>().FirstOrDefault();
 
             // 注入语言包到 ViewModel（供状态栏等动态文本本地化）
@@ -225,13 +251,22 @@ public partial class MainWindow : Window
         }
     }
 
+    /// <summary>从插件类型上读 <c>[Plugin]</c> 特性的 Name（找不到时回退为类型名）。</summary>
+    /// <param name="plugin">插件实例。</param>
+    /// <returns>插件 Name。</returns>
+    private static string GetPluginName(WFU.PluginSDK.IPlugin plugin)
+    {
+        var attr = plugin.GetType()
+            .GetCustomAttributes(typeof(WFU.PluginSDK.PluginAttribute), false)
+            .FirstOrDefault() as WFU.PluginSDK.PluginAttribute;
+        return attr?.Name ?? plugin.GetType().Name;
+    }
+
     /// <summary>从 settings.json 恢复窗口位置与大小（带虚拟屏边界校验）。</summary>
     private void RestoreWindowBounds()
     {
         try
         {
-            _settingsStore.Load();
-
             var left = _settingsStore.Get<double>("window.left", double.NaN);
             var top = _settingsStore.Get<double>("window.top", double.NaN);
             var width = _settingsStore.Get<double>("window.width", 1200);

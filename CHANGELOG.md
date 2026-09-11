@@ -46,6 +46,10 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M7-1 中文语言包 ChinesePack + 语言包确定性选择（2026-09-11）**
+  - **ChinesePack 官方插件**：53 个 key 的中文翻译，与 EnglishPack 完全对齐。
+  - **语言包确定性选择**：`settings.json` 的 `language` 字段指定优先插件 Name（默认 `"ChinesePack"`）；未命中回退 `FirstOrDefault()` 并输出警告日志。
+  - `docs/Plugins.md` 新增「语言包使用约定」章节（切换 / 新增 / 冲突处理）。
 - **M6 项目导出/导入（2026-09-11）**
   - 新建项目：从 `Templates/` 复制标准骨架（`index.html` / `app.js` / `style.css` / `unity-bridge.js`）。
   - 左侧文件树：显示项目内 `.html/.js/.css`，双击打开。

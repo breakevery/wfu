@@ -125,17 +125,13 @@ using WFU.PluginSDK;
 namespace EnglishPack;
 
 [Plugin("EnglishPack", "1.0.0", "English language pack")]
-public class EnglishLanguagePack : IPlugin, ILanguagePack
+public class EnglishLanguagePack : ILanguagePack
 {
     private static readonly Dictionary<string, string> Strings = new()
     {
         { "menu_file", "File" },
         // ...其余 key 省略
     };
-
-    public void Initialize() { }
-    public void Execute() { }
-    public void Dispose() { }
 
     public string GetString(string key)
         => Strings.TryGetValue(key, out var value) ? value : key;
@@ -148,7 +144,8 @@ public class EnglishLanguagePack : IPlugin, ILanguagePack
 
 | 插件 | 版本 | 能力 | 说明 |
 |------|------|------|------|
-| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏/状态栏/项目/导入导出共 **52** 条 key |
+| **ChinesePack** | 1.0.0 | `ILanguagePack` | 简体中文语言包，53 条 key（默认语言包，`language = "ChinesePack"`） |
+| **EnglishPack** | 1.0.0 | `ILanguagePack` | 英文语言包，覆盖菜单/工具栏/状态栏/项目/导入导出共 **53** 条 key |
 | **BasicTheme** | 1.0.0 | `IThemeProvider` | 深色主题（背景 `#1E1E1E`、前景 `#D4D4D4`、Consolas 14） |
 
 两者均位于仓库根 `plugins/` 下，已加入解决方案但不参与主程序编译（各自输出到宿主 `Plugins/` 子目录）。
@@ -194,6 +191,62 @@ public class EnglishLanguagePack : IPlugin, ILanguagePack
 | **语言包不生效** | ① `CurrentLanguagePack` 是否为 null（看控制台 `[PluginLoader] 语言包:` 行）；② 菜单项的 `x:Name` 是否已加；③ key 是否与插件中定义**完全一致** |
 | **主题不生效** | 查看控制台是否输出 `[Theme] 已应用: ...`；检查控件 `x:Name`（编辑器为 `Editor`） |
 | **窗口位置异常** | 直接删除 `settings.json` 恢复默认；代码含虚拟屏边界校验，越界会自动回退 |
+
+---
+
+## 语言包使用约定
+
+### 同一时刻只生效一个语言包
+
+WFU 的设计意图是**同一时刻只生效一个语言包**。虽然技术上可以同时安装多个，但：
+- `settings.json` 中 `language` 字段指定的那个会生效
+- 未找到匹配时回退到第一个加载的语言包
+- **语言包加载顺序不保证**，因此强烈建议只保留一个
+
+### 如何切换语言
+
+编辑 `settings.json`（位于程序目录，如 `WFU.Host.exe` 同级），修改 `language` 字段：
+
+```json
+{
+  "language": "ChinesePack"
+}
+```
+
+**可选值**是语言包插件的 `[Plugin(Name = "...")]`：
+
+| 值 | 语言 |
+|----|------|
+| `"ChinesePack"` | 简体中文 |
+| `"EnglishPack"` | English |
+
+**默认值**：`"ChinesePack"`。
+
+**匹配失败时**：回退到第一个加载的语言包，并在控制台输出警告日志：
+```
+[Lang] 未找到 <请求的名字> 语言包，回退到 <实际生效的>
+```
+
+### 如何新增语言包
+
+1. 复制 `plugins/ChinesePack/` 或 `plugins/EnglishPack/` 整个目录
+2. 改目录名（如 `JapanesePack`）
+3. 改 `.csproj` 里的 `<OutputPath>` 末级目录为 `Plugins\JapanesePack\`
+4. 改 `.cs` 里的：
+   - `namespace` → `JapanesePack`
+   - `[Plugin("JapanesePack", "1.0.0", "...")]`
+   - 类名 → `JapaneseLanguagePack`
+   - 53 个 key 的 value 译为日语
+5. `dotnet sln add plugins/JapanesePack/JapanesePack.csproj`
+6. `dotnet build`
+7. 在 `settings.json` 里把 `language` 设为 `"JapanesePack"`
+
+### 多语言包同时安装的风险
+
+**不推荐**。如果你确实同时安装了 `ChinesePack` 和 `EnglishPack`：
+- 默认值 `"ChinesePack"` 会命中 ChinesePack
+- 只有明确修改 `language` 字段才能切换
+- 若 settings 损坏或字段缺失，回退行为**不可预测**（依赖目录遍历顺序）
 
 ---
 
