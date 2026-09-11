@@ -3,6 +3,32 @@
 本文件记录 WFU 项目的所有重要变更。
 格式参考 [Keep a Changelog](https://keepachangelog.com/zh-CN/1.1.0/)，版本号遵循语义化版本。
 
+## [v0.2.0-beta] - 2026-09-11
+
+### Added
+- **项目系统**：新建/导入项目，标准目录结构（index.html / app.js / style.css / unity-bridge.js）
+- **文件树**：左侧面板显示项目内文件，双击打开
+- **导出为 ZIP**：外层套 `{项目名}/` 目录，符合 Unity StreamingAssets 部署习惯
+- **导入项目**：解压 zip 到同级目录，自动识别项目根，含 zip slip 安全防护
+- **CanExecute 机制**：未打开项目时导出按钮自动禁用
+- `docs/Export.md`：导出/导入完整说明
+
+### Changed
+- `IFileService` 扩展目录级 API：`DirectoryExists` / `CreateDirectory` / `EnumerateFiles`
+- 工具栏 Import 按钮使用独立 key（不带省略号）
+- EnglishPack key 数：35 → 53
+
+### Fixed
+- 无
+
+### Known Issues
+- 无中文语言包（计划 M7）
+- 无代码格式化
+- 无语法智能提示
+- 状态栏消息已接入语言包，但部分动态文本仍为中文（`WebView2 已就绪` 已修正为 `WebView2 Ready`）
+
+---
+
 ## [Unreleased]
 
 ### Fixed

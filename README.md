@@ -8,7 +8,7 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://opensource.org/licenses/Apache-2.0)
 [![.NET](https://img.shields.io/badge/.NET-8.0-blue)](https://dotnet.microsoft.com/)
 [![Platform](https://img.shields.io/badge/platform-Windows-blue)]()
-[![Status](https://img.shields.io/badge/status-v0.1.0--alpha-orange)]()
+[![Version](https://img.shields.io/badge/version-v0.2.0--beta-yellow)](https://github.com/breakevery/wfuexe/releases)
 
 ---
 
@@ -265,11 +265,12 @@ For a full guide, see docs/Plugins.md.
 ☑ M3 — WebView2 integration + C#↔JS bridge
 ☑ M4 — Plugin system (EnglishPack + BasicTheme) + graceful degradation
 ☑ v0.1.0-alpha — Source code stabilized, binary release pipeline established
+☑ M5 — Interface refactoring (ILanguagePack : IPlugin), 8 missing keys, status bar localization
+☑ M6 — Project system: new / import project, file tree, export / import ZIP
+☑ v0.2.0-beta — Project system + export/import ZIP, binary release
 
 🔨 Planned / 规划中
 
-☐ M5 — Interface refactoring (ILanguagePack : IPlugin), 8 missing keys, status bar localization
-☐ M6 — One-click export .zip for Unity deployment
 ☐ Code formatter plugin (Prettier-style)
 ☐ Git integration plugin
 ☐ Chinese / Japanese language packs
