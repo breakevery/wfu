@@ -20,6 +20,13 @@
   - 验证：`dotnet build` 0 警告 0 错误。
 
 ### Added
+- **M5-3 状态栏接入语言包（2026-09-11）**
+  - `MainViewModel` 新增 `ILanguagePack?` 字段 + `SetLanguagePack()` 注入 + `T(key, fallback)` + `RefreshLanguage()`。
+  - 状态消息本地化：`status_new_file` / `status_opened` / `status_open_failed` / `status_saved` / `status_save_failed`。
+  - 新增 `SaveStateText` 属性（替代 XAML 的 Style DataTrigger）。
+  - `MainWindow.LoadPlugins()` 后向 ViewModel 注入语言包；`ApplyLanguage()` 处理状态栏静态标签（`status_line` / `status_col`）。
+  - EnglishPack 新增 3 个 key（`status_new_file` / `status_open_failed` / `status_save_failed`），现共 34 条。
+  - 验证：8 项状态栏验证全 PASS；语言包生效（临时值验证）；降级显示中文硬编码、不崩溃。
 - **M5-2 补全 EnglishPack 8 个缺失 key（2026-09-10）**
   - 新增 Edit 子项 5 个 key（`menu_edit_undo/redo/cut/copy/paste`）。
   - 新增 View 子项 2 个 key（`menu_view_toggle_left/right`）。

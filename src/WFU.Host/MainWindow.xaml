@@ -111,28 +111,17 @@
                 <TextBlock Text="{Binding StatusText}"/>
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock>
-                    <TextBlock.Style>
-                        <Style TargetType="TextBlock">
-                            <Setter Property="Text" Value="已保存"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IsModified}" Value="True">
-                                    <Setter Property="Text" Value="● 已修改"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </TextBlock.Style>
-                </TextBlock>
+                <TextBlock Text="{Binding SaveStateText}"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Text="行: "/>
+                <TextBlock x:Name="StatusBarLineLabel" Text="行: "/>
             </StatusBarItem>
             <StatusBarItem>
                 <TextBlock Text="{Binding CurrentLine}"/>
             </StatusBarItem>
             <StatusBarItem>
-                <TextBlock Text="列: "/>
+                <TextBlock x:Name="StatusBarColLabel" Text="列: "/>
             </StatusBarItem>
             <StatusBarItem>
                 <TextBlock Text="{Binding CurrentColumn}"/>

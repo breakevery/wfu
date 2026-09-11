@@ -105,6 +105,9 @@ public partial class MainWindow : Window
             CurrentLanguagePack = loader.Plugins.OfType<ILanguagePack>().FirstOrDefault();
             CurrentTheme = loader.Plugins.OfType<IThemeProvider>().FirstOrDefault();
 
+            // 注入语言包到 ViewModel（供状态栏等动态文本本地化）
+            _viewModel.SetLanguagePack(CurrentLanguagePack);
+
             Console.WriteLine($"[PluginLoader] 已加载 {loader.Plugins.Count} 个插件");
             Console.WriteLine($"[PluginLoader] 语言包: {CurrentLanguagePack?.GetType().Name ?? "未加载（降级到硬编码）"}");
             Console.WriteLine($"[PluginLoader] 主题: {CurrentTheme?.GetType().Name ?? "未加载（降级到默认样式）"}");
@@ -192,6 +195,10 @@ public partial class MainWindow : Window
             // View 菜单项（M5 补全）
             MenuViewToggleLeft.Header = t.GetString("menu_view_toggle_left");
             MenuViewToggleRight.Header = t.GetString("menu_view_toggle_right");
+
+            // 状态栏静态标签（M5-3）
+            StatusBarLineLabel.Text = t.GetString("status_line") + ": ";
+            StatusBarColLabel.Text = t.GetString("status_col") + ": ";
 
             Console.WriteLine("[Lang] 已应用语言包文本");
         }

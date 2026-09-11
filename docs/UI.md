@@ -73,6 +73,9 @@
   转发调用 `MainViewModel.NotifyCaretPositionChanged(line, column)`，更新 `CurrentLine` / `CurrentColumn`。
 - 内容修改标记：AvalonEdit 的 `TextChanged` 事件转发到 `NotifyEditorTextChanged()`，将 `IsModified` 置为 `true`。
 - 状态栏通过 `StatusBar` 中的 `TextBlock` 绑定 `StatusText` / `CurrentLine` / `CurrentColumn`。
+- **M5-3 变更**：状态栏文本改为**语言包驱动**——动态文本（状态消息、`已保存`/`● 已修改`、`行:`/`列:`）均来自 `ILanguagePack`；
+  `SaveStateText` 属性替代了原 XAML 的 `Style DataTrigger`；`MainWindow.LoadPlugins()` 后调用 `SetLanguagePack()` 注入，
+  无语言包时回退中文硬编码。
 
 > 约定：代码后置（`.xaml.cs`）**只做界面事件转发**，不写业务逻辑；业务逻辑全部在视图模型中。
 

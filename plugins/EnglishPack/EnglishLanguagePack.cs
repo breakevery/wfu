@@ -51,6 +51,10 @@ public class EnglishLanguagePack : ILanguagePack
         { "menu_view_toggle_right", "Toggle Right Panel" },
         // 工具栏（M5 补全）
         { "toolbar_bridge_test", "Bridge Test" },
+        // 状态栏消息（M5-3 补全）
+        { "status_new_file", "New File" },
+        { "status_open_failed", "Open failed" },
+        { "status_save_failed", "Save failed" },
     };
 
     /// <inheritdoc />

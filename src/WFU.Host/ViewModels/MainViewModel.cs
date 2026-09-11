@@ -5,6 +5,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Win32;
 using WFU.Core.Services;
+using WFU.PluginSDK;
 
 namespace WFU.Host.ViewModels;
 
@@ -16,6 +17,7 @@ public partial class MainViewModel : ObservableObject
 {
     private readonly IFileService _fileService;
     private readonly ISettingsStore _settingsStore;
+    private ILanguagePack? _languagePack;
 
     /// <summary>当前打开的文件路径；未保存的新文件为 "Untitled"。</summary>
     [ObservableProperty]
@@ -53,6 +55,39 @@ public partial class MainViewModel : ObservableObject
         _settingsStore = settingsStore ?? throw new ArgumentNullException(nameof(settingsStore));
     }
 
+    /// <summary>由 <c>MainWindow</c> 在插件加载完成后注入语言包（可为 null，表示降级）。</summary>
+    /// <param name="pack">当前生效的语言包，或 <c>null</c>。</param>
+    public void SetLanguagePack(ILanguagePack? pack)
+    {
+        _languagePack = pack;
+        RefreshLanguage();
+    }
+
+    /// <summary>本地化辅助：语言包未加载时回退到 <paramref name="fallback"/>。</summary>
+    /// <param name="key">语言包键。</param>
+    /// <param name="fallback">降级文本。</param>
+    /// <returns>本地化文本或降级文本。</returns>
+    private string T(string key, string fallback)
+        => _languagePack?.GetString(key) ?? fallback;
+
+    /// <summary>语言包加载/切换后调用，重算所有由语言包驱动的显示文本。</summary>
+    public void RefreshLanguage()
+    {
+        OnPropertyChanged(nameof(SaveStateText));
+    }
+
+    /// <summary>状态栏「已保存 / ● 已修改」文本（供 XAML 直接绑定）。</summary>
+    public string SaveStateText => IsModified
+        ? T("status_modified", "● 已修改")
+        : T("status_saved", "已保存");
+
+    /// <summary>IsModified 变化时同步通知 <see cref="SaveStateText"/>。</summary>
+    /// <param name="value">新的修改状态。</param>
+    partial void OnIsModifiedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(SaveStateText));
+    }
+
     /// <summary>新建文件：清空内容并重置为未命名状态。</summary>
     [RelayCommand]
     private void NewFile()
@@ -60,7 +95,7 @@ public partial class MainViewModel : ObservableObject
         EditorContent = string.Empty;
         CurrentFilePath = "Untitled";
         IsModified = false;
-        StatusText = "新建文件";
+        StatusText = T("status_new_file", "新建文件");
     }
 
     /// <summary>打开文件：弹出打开对话框，读取所选文件内容到编辑器。</summary>
@@ -81,11 +116,11 @@ public partial class MainViewModel : ObservableObject
             EditorContent = await _fileService.ReadFileAsync(dialog.FileName);
             CurrentFilePath = dialog.FileName;
             IsModified = false;
-            StatusText = $"已打开: {dialog.FileName}";
+            StatusText = $"{T("status_opened", "已打开")}: {dialog.FileName}";
         }
         catch (Exception ex)
         {
-            StatusText = $"打开失败: {ex.Message}";
+            StatusText = $"{T("status_open_failed", "打开失败")}: {ex.Message}";
             MessageBox.Show(ex.Message, "打开失败", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
@@ -115,11 +150,11 @@ public partial class MainViewModel : ObservableObject
             await _fileService.WriteFileAsync(path, EditorContent);
             CurrentFilePath = path;
             IsModified = false;
-            StatusText = $"已保存: {path}";
+            StatusText = $"{T("status_saved", "已保存")}: {path}";
         }
         catch (Exception ex)
         {
-            StatusText = $"保存失败: {ex.Message}";
+            StatusText = $"{T("status_save_failed", "保存失败")}: {ex.Message}";
             MessageBox.Show(ex.Message, "保存失败", MessageBoxButton.OK, MessageBoxImage.Warning);
         }
     }
